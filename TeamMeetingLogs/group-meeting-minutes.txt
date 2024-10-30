@@ -1,0 +1,30 @@
+10/29/24 - Meeting:
+
+__Minutes__
+	- Figure out GitHub project board
+	- Determine Project Timeline
+		- Would like to be mostly finished a week early if at all possible so we don't get caught with a bug we can't track down
+	- Decide overarching responsibilities
+
+__Major Decisions__
+	- Minimalist color palette (Tenative)
+		- Black, Grey, White, Red
+		- Maybe CU Theme
+	- We are going to go with the Venmo API
+		- Could have gone with Splitwise but the API seems to be subpar
+	- Decided and confirmed development methodology
+
+__Overall Assignments__
+	- Xavier
+		- Dashboard/Home Page
+	- Shaan
+		- Profile Page
+	- Austin
+		- APIs/General Endpoints
+	- Gil
+		- Database
+	- Alex
+		- Login/Logout/Registration/Sessions
+
+__Follow Up Items__
+	- Create individual tickets for the coming weeks work
