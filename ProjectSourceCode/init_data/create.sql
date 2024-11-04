@@ -8,5 +8,12 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS groups (
   group_id SERIAL PRIMARY KEY NOT NULL,
-  group_name VARCHAR(100),
+  group_name VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS users_to_groups (
+  group_id SERIAL PRIMARY KEY NOT NULL,
+  user_id SERIAL PRIMARY KEY NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+  FOREIGN KEY (group_id) REFERENCES groups (group_id) ON DELETE CASCADE
 );
