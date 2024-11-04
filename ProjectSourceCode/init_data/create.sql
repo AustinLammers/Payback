@@ -5,3 +5,8 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(100) NOT NULL,
   account_bal DECIMAL
 );
+
+CREATE TABLE IF NOT EXISTS groups (
+  group_id SERIAL PRIMARY KEY NOT NULL,
+  group_name VARCHAR(100),
+);
