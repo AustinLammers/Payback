@@ -79,6 +79,14 @@ app.get('/', (req, res) => {
     res.render('pages/register');
   });
 
+  app.get('/home', (req, res) => {
+    res.render('pages/home');
+  });
+  
+app.get('/profile', (req, res) => {
+    res.render('pages/profile_page');
+  });
+
   // Register
 app.post('/register', async (req, res) => {
   //hash the password using bcrypt library
@@ -123,7 +131,7 @@ app.post('/login', async (req, res) => {
           //save user details in session like in lab 7
           req.session.user = user;
           req.session.save();
-          res.redirect('/discover')
+          res.redirect('/home');
           }
           else {
           res.render('pages/login', {'message' : 'Incorrect Password'})

@@ -1,0 +1,26 @@
+__RELEASE NOTES__
+- Many Page skeletons added
+    - home page skeleton
+    - login page skeleton
+    - logout page skeleton
+    - profile page skeleton
+    - registration page skeleton
+- Basic Handlebars Partials Added
+    - Navbar partial skeleton
+    - Footer partial skeleton
+    - Header partial skeleton
+- Database Tables created
+    - users table
+        - Used to store the users account information
+    - groups table
+        - Used to store group information like group name, group id, etc.
+    - users_to_groups table
+        - Used to link users to a groups
+- Basic Endpoints
+    - Have endpoints to render all page skeleton handlebars
+        - /home
+        - /login
+        - /logout
+        - /profile
+        - /registration
+    - Also have post endpoint for login to facilitate the login but it has not been hooked up properly yet
