@@ -18,3 +18,11 @@ CREATE TABLE IF NOT EXISTS users_to_groups (
   FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
   FOREIGN KEY (group_id) REFERENCES groups (group_id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS expenses (
+  amount DECIMAL,
+  payer SERIAL PRIMARY KEY NOT NULL,
+  payee SERIAL PRIMARY KEY NOT NULL,
+  FOREIGN KEY (payer) REFERENCES users (user_id) ON DELETE CASCADE, 
+  FOREIGN KEY (payer) REFERENCES users (user_id) ON DELETE CASCADE, 
+)

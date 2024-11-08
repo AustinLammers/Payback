@@ -28,3 +28,37 @@ __Overall Assignments__
 
 __Follow Up Items__
 	- Create individual tickets for the coming weeks work
+
+11/05/24 - Meeting:
+
+__Minutes__
+	- Finalize a rough draft for a running browser prototype of the general pages for our application
+	- Finalize figma representations of the UI for each page
+	- Begin developing back end endpoints to link pages together
+	- Decide overarching responsibilities
+
+__Major Decisions__
+	- We have decided we will no longer be incorporating any API integration as it's very risky to work with APIs that concern monetary services
+	- Instead of using an API we will just be creating some sort of virtual currency system that does not deal with actual money
+	- We have also made changes to our "Leaderboard" idea. Instead of displaying all users including those who have 
+	  not been staying up to date with payments, we will instead only display the top 3 users on the homepage who
+	  have done well at paying on time. For users who are behind on payments, we will simply send them push notifications.
+
+__Overall Assignments__
+	- Xavier
+		- Dashboard/Home Page Figma representations
+		- Dashboard/Home Page rough draft for prototype
+	- Shaan
+		- Profile Page Figma representations
+		- Profile Page rough draft for prototype
+	- Austin
+		- APIs/General Endpoints
+	- Gil
+		- Database (add final "expenses" table to route users to their payment responsibilities)
+		- General Endpoints
+	- Alex
+		- Login/Logout/Registration/Sessions Figma representations
+		- Login/Logout/Registration/Sessions rough draft for prototype
+
+__Follow Up Items__
+	- Create individual tickets for the coming weeks work
