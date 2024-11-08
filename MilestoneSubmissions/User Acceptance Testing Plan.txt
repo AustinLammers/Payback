@@ -1,0 +1,48 @@
+1.) User should be able to request payment
+    Environment: Local
+        - Use docker to run local server
+        - Test Functionality
+    - Acceptance Criteria:
+        - User should be able to create and add people to a transaction with the following information
+            - Total Amount of Transaction
+            - People splitting transaction
+            - Individual shares of transaction
+            - Group (optional)
+        - This data should be stored in a database table and payment amounts should be added to the corresponding tables
+            - A new entry in payments table should be created with payment amount
+            - A new entry in payments-to-users should be created, linking the payee and payer to the payment
+        - A new group should be created if nessesary and associated links should be created within users_to_groups table
+            - New group in groups table
+            - All users linked to table via users_to_groups
+        - If successful, the user should be able to create a payment, see that the corresponding people owe them the payment, and the other users should see they owe this person money
+        - User Acceptance Testers
+            - TBD
+
+2.) User should be able to add a friend and see a list of friends on the friends list
+    - Acceptance Criteria
+        - Test Data Used
+            - Users Table
+            - Users to Friends Table
+        - Test Environment
+            - The test should be done locally where the test users should be able to send and accept friend requests
+        - Test Results
+            - The user should be able to successfully reach the friends page to request and accept friend requests from predetermined users
+        - User Acceptance Testers information
+            - TBD
+
+3.) User should recieve a notification when they recieve a payment/request
+    - Environment: Local
+        - Docker should be used to run the local server
+        - A the UAT should create a request on one user, switch to the requested user and see that a message is displayed on the requested users home page
+    - Acceptance Criteria
+        - When a user recieves a new request for money, the user should be appropriately notifed on the website
+        - This should come in the form of a message at the top of the home page
+        - Test Data
+            - The message should include
+                - Name of the user who the request comes from
+                - Amount the request is for
+                - Title of the request
+        - Test Results
+            - If the test is successful, a message should appear at the top of the homepage on the requested users account
+        - User Acceptance Testers Information
+            - TBD

@@ -90,8 +90,10 @@ app.get('/profile', (req, res) => {
   // Register
 app.post('/register', async (req, res) => {
   //hash the password using bcrypt library
-  
-  const hash = await bcrypt.hash(req.body.password, 10);
+  let hash = null;
+  if(req.body.password){
+    hash = await bcrypt.hash(req.body.password, 10);
+  }
 
   // To-DO: Insert username and hashed password into the 'users' table
   let add_user_q = `INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *;`
@@ -100,12 +102,13 @@ app.post('/register', async (req, res) => {
         // send success message
         .then(function (data) {
           console.log(data);
-          res.redirect('/login');
+          res.redirect(200, '/login');
         })
         // if query execution fails
         // send error message
         .catch(function (err) {
-          res.redirect('/register');
+          console.log("fail");
+          res.redirect(400, '/register');
           return console.log(err);
           
         });
@@ -154,12 +157,14 @@ app.get('/logout', async (req, res) => {
   res.render('pages/logout');
 });
 
-
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
 
 
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
-app.listen(3000);
+module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');
