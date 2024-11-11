@@ -162,21 +162,23 @@ app.get('/welcome', (req, res) => {
 });
 
 app.post('/createGroup', async (req, res) => {
-  let search_user_q = `SELECT username FROM users WHERE username = '$1' RETURNING *;`
-  let create_group_q = `INSERT INTO groups (group_name) VALUES ($1) RETURNING *;`
-  let mapping_q = `INSERT INTO users_to_groups (group_name) VALUES ($1) RETURNING *;`
+  let search_user_q = `SELECT username FROM users WHERE username = '$1' RETURNING user_id;`
+  let create_group_q = `INSERT INTO groups (group_name) VALUES ($1) RETURNING group_id;`
+  let users_to_groups_q = `INSERT INTO users_to_groups (user_id, group_id) VALUES ($1, $2) RETURNING user_id, group_id;`
 
   const {username, group_name} = req.body;
+  var userResult; 
+  var groupResult;
 
-  if(req.body.image_url && req.body.image_id) {
+  if(req.body.username) {
     db.task('get-everything', task => {
-      return task.batch([task.any(reviews_query, [username,review,rating]), task.any(images_query, [image_url, image_caption])]);
+      return task.batch([task.any(search_user_q, [username]), task.any(create_group_q, [group_name])]);
     })
 
     .then(function (data) {
-      reviewResult = data[0][0].review_id;
-      imageResult = data[1][0].image_id;
-      db.any(reviews_to_images_query, [reviewResult, imageResult])
+      userResult = data[0][0].user_id;
+      groupResult = data[1][0].group_id;
+      db.any(users_to_groups_q, [userResult, groupResult])
       .then(mappingData => {
         return {data, mappingData};
       })
@@ -193,23 +195,9 @@ app.post('/createGroup', async (req, res) => {
     });
 
   } else {
-    db.any(reviews_query, [
-      req.body.username,
-      req.body.review,
-      req.body.rating,
-    ])
-      .then(function (data) {
-        res.status(201).json({
-          status: 'success',
-          data: data,
-          message: 'data added successfully',
-        });
-      })
-      // if query execution fails
-      // send error message
-      .catch(function (err) {
-        return console.log(err);
-      });
+    app.use((req, res) => {
+      res.status(404).send('User not found');
+    });
   }
 });
 
