@@ -91,6 +91,7 @@ app.get('/profile', (req, res) => {
 app.post('/register', async (req, res) => {
   //hash the password using bcrypt library
   let hash = null;
+  console.log(res.statusCode);
   if(req.body.password){
     hash = await bcrypt.hash(req.body.password, 10);
   }
@@ -102,13 +103,15 @@ app.post('/register', async (req, res) => {
         // send success message
         .then(function (data) {
           console.log(data);
-          res.redirect(200, '/login');
+          console.log(res.statusCode);
+          res.redirect('/login');
+          console.log(res.statusCode);
         })
         // if query execution fails
         // send error message
         .catch(function (err) {
           console.log("fail");
-          res.redirect(400, '/register');
+          res.redirect('/register');
           return console.log(err);
           
         });
