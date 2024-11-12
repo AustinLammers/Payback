@@ -21,8 +21,15 @@ CREATE TABLE IF NOT EXISTS users_to_groups (
 
 CREATE TABLE IF NOT EXISTS expenses (
   amount DECIMAL,
-  payer SERIAL PRIMARY KEY NOT NULL,
-  payee SERIAL PRIMARY KEY NOT NULL,
+  payer INTEGER NOT NULL,
+  payee INTEGER NOT NULL,
   FOREIGN KEY (payer) REFERENCES users (user_id) ON DELETE CASCADE, 
-  FOREIGN KEY (payer) REFERENCES users (user_id) ON DELETE CASCADE, 
-)
+  FOREIGN KEY (payer) REFERENCES users (user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS friends (
+  user_id INTEGER NOT NULL,
+  friend_id INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+  FOREIGN KEY (friend_id) REFERENCES users (user_id) ON DELETE CASCADE
+);

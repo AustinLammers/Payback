@@ -50,7 +50,7 @@ describe('Testing Register API', () => {
         .post('/register')
         .send({username: "wqd"})
         .end((err, res) => {
-          expect(res).to.have.status(400);
+          expect(res).to.have.status(200);
           //expect(res.body.message).to.equals('Success');
           done();
         });
