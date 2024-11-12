@@ -91,6 +91,10 @@ app.get('/profile', (req, res) => {
     res.render('pages/friends');
   });
 
+  app.get('/payment', (req, res) => {
+    res.render('pages/payment');
+  });
+
 
   // Register
 app.post('/register', async (req, res) => {
