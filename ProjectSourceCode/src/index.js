@@ -222,6 +222,46 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+app.post('/createGroup', async (req, res) => {
+  let search_user_q = `SELECT username FROM users WHERE username = '$1' RETURNING user_id;`
+  let create_group_q = `INSERT INTO groups (group_name) VALUES ($1) RETURNING group_id;`
+  let users_to_groups_q = `INSERT INTO users_to_groups (user_id, group_id) VALUES ($1, $2) RETURNING user_id, group_id;`
+
+  const {username, group_name} = req.body;
+  var userResult; 
+  var groupResult;
+
+  if(req.body.username) {
+    db.task('get-everything', task => {
+      return task.batch([task.any(search_user_q, [username]), task.any(create_group_q, [group_name])]);
+    })
+
+    .then(function (data) {
+      userResult = data[0][0].user_id;
+      groupResult = data[1][0].group_id;
+      db.any(users_to_groups_q, [userResult, groupResult])
+      .then(mappingData => {
+        return {data, mappingData};
+      })
+      .then((finalResult) => {
+        res.status(201).json({
+          status: 'success',
+          data: finalResult,
+          message: 'data added successfully',
+      });
+    })
+      .catch(function (err) {
+        return console.log(err);
+      });
+    });
+
+  } else {
+    app.use((req, res) => {
+      res.status(404).send('User not found');
+    });
+  }
+});
+
 
 // *****************************************************
 // <!-- Section 5 : Start Server-->
