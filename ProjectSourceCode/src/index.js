@@ -87,11 +87,18 @@ app.get('/profile', (req, res) => {
     res.render('pages/profile_page');
   });
 
+  app.get('/friends', (req, res) => {
+    res.render('pages/friends');
+  });
+
+
   // Register
 app.post('/register', async (req, res) => {
   //hash the password using bcrypt library
-  
-  const hash = await bcrypt.hash(req.body.password, 10);
+  let hash = null;
+  if(req.body.password){
+    hash = await bcrypt.hash(req.body.password, 10);
+  }
 
   // To-DO: Insert username and hashed password into the 'users' table
   let add_user_q = `INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *;`
@@ -100,7 +107,9 @@ app.post('/register', async (req, res) => {
         // send success message
         .then(function (data) {
           console.log(data);
+        
           res.redirect('/login');
+          
         })
         // if query execution fails
         // send error message
@@ -149,17 +158,74 @@ app.post('/login', async (req, res) => {
 
 
 
-app.get('/logout', async (req, res) => {
+app.get('/logout', (req, res) => {
   req.session.destroy();
   res.render('pages/logout');
 });
 
+app.post('/add_transaction', (req, res) => {
+  let add_user_q = `INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *;`
 
+});
+
+app.put('/add_friend', (req, res) => {
+  let find_user_q = 'SELECT user_id FROM users WHERE username=$1;'
+  let add_friend_q = `INSERT INTO friends (user_id, friend_id) VALUES ($1, $2) RETURNING *;`
+  var friend_id = -1;
+  var user_id = -1;
+
+  db.one(find_user_q, [user.username] )
+        // if query execution succeeds
+        // send success message
+        .then(function (data) {
+          db.one(find_user_q, [req.query.friend_username])
+          
+          .then(function (data) {
+            friend_id = data.user_id;
+            console.log("friend found: " + data.user_id + friend_id);
+
+        db.any(add_friend_q, [user_id, friend_id])
+        // if query execution succeeds
+        // send success message
+        .then(function (data) {
+          console.log(data);
+          res.render('pages/friends', {message : "Friend added sucessfully!"});
+        })
+        // if query execution fails
+        // send error message
+        .catch(function (err) {
+          res.render('pages/friends', {message : "Request could not be processed, Try again later."});
+          return console.log(err);
+          
+        });
+        })
+          
+          .catch(function (err) {
+            res.render('pages/friends', {message: "There was an error finding this user."})
+            return console.log(err);
+        });
+        user_id = data.user_id;
+        console.log("userFound: " + data.user_id + user_id);
+
+        })
+        // if query execution fails
+        // send error message
+        .catch(function (err) {
+          res.render('pages/friends', {message: "There was an error processing this request. Please check the entered username and try again."});
+          return console.log(err);
+          
+        });
+   
+});
+
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
 
 
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
-app.listen(3000);
+module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');

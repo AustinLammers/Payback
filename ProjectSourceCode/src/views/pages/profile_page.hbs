@@ -1,11 +1,127 @@
-    <div class="container mt-4">
-        <div class="row">
-          <div class="col-md-4">
-            <img src=../resources/img/payback_icon.png id="self-image" width="500px" class="img-fluid"> <!--NOTE TO SELF, MAKE SURE TO ADD ICON LATER IN PRCOESS-->
-          </div>
-          <div class="col-md-8" id="self-desc">
-            <h2>Payback</h2>
-            <p>This is a filler page, we plan to have the Profle Interface here! </p>
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-3">
+      <!-- Profile Section -->
+      <div class="profile-card bg-white rounded-lg shadow-sm p-4 mb-4">
+        <div class="text-center">
+          <img src="../resources/img/payback_icon.png" id="self-image" width="500px" class="img-fluid"> <!--NOTE TO SELF, MAKE SURE TO ADD ICON LATER IN PRCOESS-->
+          <h3 class="mb-2">{{username}}</h3>
+          <p class="text-muted">Member since {{joinDate}}</p>
+          <div class="stats d-flex justify-content-around mt-3">
+            <div class="stat-item">
+              <h6>{{totalLoans}}</h6>
+              <small class="text-muted">Loans</small>
+            </div>
+            <div class="stat-item">
+              <h6>${{totalLent}}</h6>
+              <small class="text-muted">Lent</small>
+            </div>
+            <div class="stat-item">
+              <h6>{{rating}}</h6>
+              <small class="text-muted">Rating</small>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions bg-white rounded-lg shadow-sm p-4">
+        <h5 class="mb-3">Quick Actions</h5>
+        <div class="d-grid gap-2">
+          <button class="btn btn-primary">Create New Loan</button>
+          <button class="btn btn-outline-secondary">View History</button>
+          <button class="btn btn-outline-secondary">Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-9">
+      <!-- Active Loans Section -->
+      <div class="loans-section bg-white rounded-lg shadow-sm p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="mb-0">Active Loans</h4>
+          <a href="#" class="text-decoration-none">View All</a>
+        </div>
+        {{
+#each
+ activeLoans}}
+        <div class="loan-card p-3 mb-3 border rounded">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-1">Loan to {{borrower}}</h5>
+              <p class="text-muted mb-0">Amount: ${{amount}} | Due: {{dueDate}}</p>
+            </div>
+            <span class="badge bg-{{status.color}}">{{status.text}}</span>
+          </div>
+        </div>
+        {{
+/each
+}}
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="activity-section bg-white rounded-lg shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="mb-0">Recent Activity</h4>
+          <a href="#" class="text-decoration-none">See More</a>
+        </div>
+        {{
+#each
+ recentActivity}}
+        <div class="activity-item d-flex align-items-center p-2 border-bottom">
+          <div class="activity-icon me-3">
+            <i class="{{icon}} text-{{iconColor}}"></i>
+          </div>
+          <div class="activity-details flex-grow-1">
+            <p class="mb-0">{{description}}</p>
+            <small class="text-muted">{{timestamp}}</small>
+          </div>
+        </div>
+        {{
+/each
+}}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.profile-card, .quick-actions, .loans-section, .activity-section {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-primary {
+  background-color: #6c5ce7;
+  border-color: #6c5ce7;
+}
+
+.btn-primary:hover {
+  background-color: #5b4dd1;
+  border-color: #5b4dd1;
+}
+
+.loan-card:hover {
+  background-color: #f8f9fa;
+  transition: background-color 0.2s ease;
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #f8f9fa;
+}
+
+.text-decoration-none {
+  color: #6c5ce7;
+}
+
+.text-decoration-none:hover {
+  color: #5b4dd1;
+}
+</style>

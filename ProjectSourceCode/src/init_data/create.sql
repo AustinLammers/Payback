@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
   user_id SERIAL PRIMARY KEY NOT NULL,
   name VARCHAR(100),
-  password VARCHAR(100),
+  password VARCHAR(100) NOT NULL,
   username VARCHAR(100) NOT NULL,
   email VARCHAR(100),
   account_bal DECIMAL
@@ -17,4 +17,19 @@ CREATE TABLE IF NOT EXISTS users_to_groups (
   user_id INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
   FOREIGN KEY (group_id) REFERENCES groups (group_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS expenses (
+  amount DECIMAL,
+  payer INTEGER NOT NULL,
+  payee INTEGER NOT NULL,
+  FOREIGN KEY (payer) REFERENCES users (user_id) ON DELETE CASCADE, 
+  FOREIGN KEY (payer) REFERENCES users (user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS friends (
+  user_id INTEGER NOT NULL,
+  friend_id INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+  FOREIGN KEY (friend_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
