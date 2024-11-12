@@ -62,3 +62,34 @@ __Overall Assignments__
 
 __Follow Up Items__
 	- Create individual tickets for the coming weeks work
+
+11/08/24 - Meeting:
+
+__Minutes__
+	- Catch everyone up on what we did
+	- Talked about the errors we have, give advice on how to fix
+	- Discuss what pages we want to have ready
+		- Home 
+		- Profile page
+	- Groups and friends page will come later
+	- Brainstorm tickets for everyone
+		- Assign Story points
+__Major Decisions__
+	- We want to have a semi-functional outline of the website for Monday
+	- We want to have an option to send a transaction to a group of people once or create a new group and send it to the group
+__Overall Assignments__
+	- Xavier
+		- Connect Endpoints to existing pages (Ensure forms are correctly setup, etc.)
+	- Shaan
+		- Friends page Design
+	- Austin
+		- General Endpoints
+	- Gil
+		- Database (add final "expenses" table to route users to their payment responsibilities)
+		- General Endpoints
+	- Alex
+		- Authentication/session management
+		- General Front end
+
+__Follow Up Items__
+	- Create individual tickets for the coming weeks work
