@@ -27,9 +27,8 @@ __RELEASE NOTES__ (10/29/24)
 
 __RELEASE NOTES__ (11/05/24)
 - Page Development
-    - 
-- Basic Handlebars Partials Added
-    - 
+    - Renovations were made to the home page 
+    - Profile page has also begun some renovations but is not currently finished
 - Database Tables created
     - friends table
         - Used to connect users to one another on their friends list
