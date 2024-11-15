@@ -62,7 +62,7 @@ describe('Testing Register API', () => {
       chai
         .request(server)
         .post('/createGroup')
-        .send({username: "wqd", password: "1234"})
+        .send({username: "GC1", group_name: "Oceans"})
         .end((err, res) => {
           expect(res).to.have.status(200);
           //expect(res.body.message).to.equals('Success');
