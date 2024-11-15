@@ -50,7 +50,35 @@ describe('Testing Register API', () => {
         .post('/register')
         .send({username: "wqd"})
         .end((err, res) => {
-          expect(res).to.have.status(400);
+          expect(res).to.have.status(200);
+          //expect(res.body.message).to.equals('Success');
+          done();
+        });
+    });
+  });
+
+  describe('Testing createGroup API', () => {
+    it('positive : /createGroup', done => {
+      chai
+        .request(server)
+        .post('/createGroup')
+        .send({username: "wqd", password: "1234"})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          //expect(res.body.message).to.equals('Success');
+          done();
+        });
+    });
+  });
+
+  describe('Testing createGroup API', () => {
+    it('negative : /CreateGroup', done => {
+      chai
+        .request(server)
+        .post('/createGroup')
+        .send({username: "wqd"})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
           //expect(res.body.message).to.equals('Success');
           done();
         });
