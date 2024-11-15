@@ -93,3 +93,28 @@ __Overall Assignments__
 
 __Follow Up Items__
 	- Create individual tickets for the coming weeks work
+
+11/15/24 - Meeting
+
+__Minutes__
+	- Determined what the plan for the next week is
+	- Caught up some members
+	- Discussed what pages to change or add
+		- Home Page
+		- Payment Page
+__Major Decisions__
+
+__Overall Assignments__
+	- Xavier
+		- Update Nav Bar based on session
+		- Design Friends List Page
+	- Shaan
+		- Create the Payment Page
+	- Austin
+		- Connecting Profile Page + Payments page to the backend
+		- Add transaction endpoint
+	- Gil
+		- Add Groups Page
+		- Authentication methods for user sessions
+	- Alex
+		- Updating Login/Register Page
