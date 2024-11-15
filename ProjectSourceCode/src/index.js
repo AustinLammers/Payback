@@ -89,6 +89,10 @@ app.get('/profile', (req, res) => {
     res.render('pages/profile_page');
   });
 
+  app.get('/groups', (req, res) => {
+    res.render('pages/groups');
+  });
+
   app.get('/friends', (req, res) => {
     res.render('pages/friends');
   });
