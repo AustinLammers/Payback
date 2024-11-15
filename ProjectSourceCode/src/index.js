@@ -74,7 +74,8 @@ app.get('/', (req, res) => {
   });
 
   app.get('/login', (req, res) => {
-    res.render('pages/login');
+    const isLoggedIn = req.session.user ? true : false;
+    res.render('pages/login', { isLoggedIn });
   });
 
   app.get('/register', (req, res) => {
@@ -82,19 +83,23 @@ app.get('/', (req, res) => {
   });
 
   app.get('/home', (req, res) => {
-    res.render('pages/home');
+    const isLoggedIn = req.session.user ? true : false;
+    res.render('pages/home', { isLoggedIn });
   });
   
 app.get('/profile', (req, res) => {
-    res.render('pages/profile_page');
+    const isLoggedIn = req.session.user ? true : false;
+    res.render('pages/profile_page', { isLoggedIn });
   });
 
   app.get('/friends', (req, res) => {
-    res.render('pages/friends');
+    const isLoggedIn = req.session.user ? true : false;
+    res.render('pages/friends', { isLoggedIn });
   });
 
   app.get('/payment', (req, res) => {
-    res.render('pages/payment');
+    const isLoggedIn = req.session.user ? true : false;
+    res.render('pages/payment', { isLoggedIn });
   });
 
 
