@@ -29,30 +29,6 @@
           </div>
         </div>
 
-        <div class="mb-4">
-          <h5 class="mb-2">Or Request From</h5>
-          <div class="list-group">
-            <!-- {{#each requesteeOptions}} -->
-            <div class="list-group-item d-flex align-items-center">
-              <div class="form-check">
-                <input class="form-check-input me-2" type="checkbox" name="requestee" value="{{id}}">
-              </div>
-              <div>
-                <h6 class="mb-1">Kamala Harris</h6>
-                <p class="text-muted mb-0">Kamala.Harris@trump.com</p>
-              </div>
-            </div>
-            <!-- {{/each}} -->
-          </div>
-        </div>
-
-        <div class="form-check mb-4">
-          <input class="form-check-input" type="checkbox" value="" id="group-payment">
-          <label class="form-check-label" for="group-payment">
-            Group Payment
-          </label>
-        </div>
-
         <div class="d-grid">
           <button class="btn btn-primary">Submit Payment</button>
         </div>
@@ -60,3 +36,30 @@
     </div>
   </div>
 </div>
+<style>
+  
+.payment-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-primary {
+  background-color: #6c5ce7;
+  border-color: #6c5ce7;
+}
+
+.btn-primary:hover {
+  background-color: #5b4dd1;
+  border-color: #5b4dd1;
+}
+
+.list-group-item {
+  border-color: #f1f1f1;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+  transition: background-color 0.2s ease;
+}
+</style>
