@@ -1,11 +1,62 @@
-    <div class="container mt-4">
-        <div class="row">
-          <div class="col-md-4">
-            <img src=../resources/img/payback_icon.png id="self-image" width="500px" class="img-fluid"> <!--NOTE TO SELF, MAKE SURE TO ADD ICON LATER IN PRCOESS-->
-          </div>
-          <div class="col-md-8" id="self-desc">
-            <h2>Payback</h2>
-            <p>This is a filler page, we plan to have the Payment Interface here! </p>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="payment-card bg-white rounded-lg shadow-sm p-4">
+        <h3 class="mb-4">Make a Payment</h3>
+
+        <div class="mb-4">
+          <h5 class="mb-2">Amount</h5>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" class="form-control" id="payment-amount" placeholder="Enter amount" min="0" step="0.01">
           </div>
         </div>
+
+        <div class="mb-4">
+          <h5 class="mb-2">Pay To</h5>
+          <div class="list-group">
+            <!-- {{#each payeeOptions}} -->
+            <div class="list-group-item d-flex align-items-center">
+              <div class="form-check">
+                <input class="form-check-input me-2" type="checkbox" name="payee" value="{{id}}">
+              </div>
+              <div>
+                <h6 class="mb-1">{{name}}</h6>
+                <p class="text-muted mb-0">{{email}}</p>
+              </div>
+            </div>
+            <!-- {{/each}} -->
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <h5 class="mb-2">Or Request From</h5>
+          <div class="list-group">
+            <!-- {{#each requesteeOptions}} -->
+            <div class="list-group-item d-flex align-items-center">
+              <div class="form-check">
+                <input class="form-check-input me-2" type="checkbox" name="requestee" value="{{id}}">
+              </div>
+              <div>
+                <h6 class="mb-1">{{name}}</h6>
+                <p class="text-muted mb-0">{{email}}</p>
+              </div>
+            </div>
+            <!-- {{/each}} -->
+          </div>
+        </div>
+
+        <div class="form-check mb-4">
+          <input class="form-check-input" type="checkbox" value="" id="group-payment">
+          <label class="form-check-label" for="group-payment">
+            Group Payment
+          </label>
+        </div>
+
+        <div class="d-grid">
+          <button class="btn btn-primary">Submit Payment</button>
+        </div>
       </div>
+    </div>
+  </div>
+</div>
