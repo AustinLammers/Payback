@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Calendar</title>
+    <!-- @TODO: Include all external resources - Bootstrap libraries, script.js and style.css -->
+     <!-- Bootstrap CSS library -->
+    <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+  crossorigin="anonymous"
+/>
+<!-- Bootstrap icons library -->
+  <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
+/>
+<!-- Bootstrap JS library -->
+  
+  <link rel = "stylesheet" href = "./resources/css/style.css">
+  </head>
+
+  <body onload="initializeCalendar()">
+    <!-- Calendar elements -->
+    <div class="container">
+      <div id="calendar" class="row"></div>
+      <!-- You may choose another container class of your liking -->
+      <!-- All elements of the webpage will be added within this div -->
+    </div>
+    <!-- Modal elements -->
+    <div class="modal" tabindex="-1" id="event_modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Modal title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style = "float: right;"></button>
+          </div>
+          <div class="modal-body">
+            <form id = "event_form">
+              <!-- Include form fields to gather the information listed below. -->
+              <div class="form-group">
+                <label for="event_name">Event Name</label>
+                <input type="text" id="event_name" class="form-control" placeholder="Enter event name">
+              </div>
+              <div class="form-group">
+                <label for="event_weekday">Weekday</label>
+                <select id="event_weekday" class="form-control" required>
+                  <option value="" disabled selected>Select a weekday</option>
+                  <option value="monday">Monday</option>
+                  <option value="tuesday">Tuesday</option>
+                  <option value="wednesday">Wednesday</option>
+                  <option value="thursday">Thursday</option>
+                  <option value="friday">Friday</option>
+                  <option value="saturday">Saturday</option>
+                  <option value="sunday">Sunday</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="event_time">Time</label>
+                <input type="time" id="event_time" class="form-control">
+              </div>
+              <div>
+                <label for="event_modality">Event Modality</label>
+                <select id="event_modality" class="form-control" onchange="updateLocationOptions(this.value)">
+                  <option value="In-person">In-person</option>
+                  <option value="Remote">Remote</option>
+                </select>
+              </div> 
+              <div class="form-group" id = "event_location_group" >
+                <label for="event_location">Location</label>
+                <input type="text" id="event_location" class="form-control" placeholder="Enter event location">
+              </div>
+              <div class="form-group" id = "event_url_group">
+                <label for="event_remote_url">Remote URL</label>
+                <input type="text" pattern="/^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/" id="event_remote_url" class="form-control" placeholder="https://">
+              </div>
+              <div id="event_attendees" class="form-group">
+                <label for="event_attendees">Event Attendees</label>
+                <input type="text" id="event_attendees" class="form-control" placeholder="Enter names of expected attendees separated by commas">
+              </div>
+            <div style = "margin-top: 20px;">
+              <button id="submit_button" class="btn btn-primary" type="submit">Create Event</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            </form>
+          </div>
+          <div class="modal-footer"></div>
+        </div>
+      </div>
+    </div>
+    <script src = "resources/js/script.js"> </script>
+    <script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+  crossorigin="anonymous"
+  ></script>
+  </body>
+</html>
