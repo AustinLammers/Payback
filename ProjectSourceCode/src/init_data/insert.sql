@@ -1,7 +1,7 @@
--- INSERT INTO users (user_id, name, password, username, email, account_bal) 
--- VALUES
---    (1, 'George Clooney',  '1', 'GC1', 'gc@email.com', 101.6) returning *,
---    (2, 'Matt Damon',  '2', 'MD2', 'md@email.com', 108.6) returning * ;
+INSERT INTO users (user_id, name, password, username, email, account_bal) 
+VALUES
+   (1, 'George Clooney',  '1', 'GC1', 'gc@email.com', 101.6),
+   (2, 'Matt Damon',  '2', 'MD2', 'md@email.com', 108.6) returning * ;
 
 -- INSERT INTO groups (group_id, group_name) 
 -- VALUES

@@ -30,6 +30,8 @@ const dbConfig = {
   password: process.env.POSTGRES_PASSWORD, // the password of the user account
 };
 
+console.log(dbConfig)
+
 const db = pgp(dbConfig);
 
 
@@ -227,7 +229,7 @@ app.get('/welcome', (req, res) => {
 });
 
 app.post('/createGroup', async (req, res) => {
-  let search_user_q = `SELECT username FROM users WHERE username = '$1' RETURNING user_id;`
+  let search_user_q = `SELECT * FROM users WHERE username = $1;`
   let create_group_q = `INSERT INTO groups (group_name) VALUES ($1) RETURNING group_id;`
   let users_to_groups_q = `INSERT INTO users_to_groups (user_id, group_id) VALUES ($1, $2) RETURNING user_id, group_id;`
 
@@ -273,3 +275,4 @@ app.post('/createGroup', async (req, res) => {
 // starting the server and keeping the connection open to listen for more requests
 module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');
+
