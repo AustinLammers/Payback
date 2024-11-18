@@ -8,13 +8,12 @@
           <h5 class="mb-2">Amount</h5>
           <div class="input-group">
             <span class="input-group-text">$</span>
-            <input type="number" 
+            <input type="text" 
                    class="form-control text-center" 
                    id="payment-amount" 
                    placeholder="0.00" 
                    min="0" 
                    step="1.00"
-                   pattern="^\d*(\.\d{2})?$"
                    onchange="this.value = parseFloat(this.value).toFixed(2)"
                    required>
           </div>
@@ -38,7 +37,6 @@
                 <input class="form-check-input me-2" type="checkbox" name="recipient" value="1">
               </div>
               <div class="d-flex align-items-center flex-grow-1">
-                <img src="../resources/img/payback_icon.png" alt="Sarah Johnson" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
                 <div>
                   <h6 class="mb-1">Sarah Johnson</h6>
                   <p class="text-muted mb-0">@sarahj</p>
@@ -51,7 +49,6 @@
                 <input class="form-check-input me-2" type="checkbox" name="recipient" value="2">
               </div>
               <div class="d-flex align-items-center flex-grow-1">
-                <img src="../resources/img/payback_icon.png" alt="Mike Davis" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
                 <div>
                   <h6 class="mb-1">Mike Davis</h6>
                   <p class="text-muted mb-0">@miked</p>
@@ -64,7 +61,6 @@
                 <input class="form-check-input me-2" type="checkbox" name="recipient" value="3">
               </div>
               <div class="d-flex align-items-center flex-grow-1">
-                <img src="../resources/img/payback_icon.png" alt="Emma Wilson" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
                 <div>
                   <h6 class="mb-1">Emma Wilson</h6>
                   <p class="text-muted mb-0">@emmaw</p>
@@ -160,11 +156,60 @@ document.addEventListener('DOMContentLoaded', function() {
   const recipientCheckboxes = document.getElementsByName('recipient');
 
   // Format amount input
-  amountInput.addEventListener('input', function() {
+  amountInput.addEventListener('input', function(e) {
+    let value = e.target.value;
+    
+    // Remove all non-numeric characters except decimal point
+    value = value.replace(/[^\d.]/g, '');
+    
+    // Ensure only one decimal point
+    const decimalPoints = value.match(/\./g);
+    if (decimalPoints && decimalPoints.length > 1) {
+      value = value.slice(0, value.lastIndexOf('.'));
+    }
+    
+    // Limit to two decimal places
+    if (value.includes('.')) {
+      const parts = value.split('.');
+      value = parts[0] + '.' + parts[1].slice(0, 2);
+    }
+    
+    // Update input value
+    e.target.value = value;
+    
+    // Format summary amount
+    if (value) {
+      const formattedAmount = parseFloat(value).toFixed(2);
+      summaryAmount.textContent = `$${formattedAmount}`;
+    } else {
+      summaryAmount.textContent = '$0.00';
+    }
+    
+    updatePerPersonAmount();
+  });
+  // Handle arrow keys for $1.00 increments
+  amountInput.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      let currentValue = parseFloat(this.value) || 0;
+      if (e.key === 'ArrowUp') {
+        currentValue += 1;
+      } else {
+        currentValue = Math.max(0, currentValue - 1);
+      }
+      this.value = currentValue.toFixed(2);
+      summaryAmount.textContent = `$${currentValue.toFixed(2)}`;
+      updatePerPersonAmount();
+    }
+  });
+
+  // Format on blur
+  amountInput.addEventListener('blur', function() {
     if (this.value) {
       this.value = parseFloat(this.value).toFixed(2);
       summaryAmount.textContent = `$${this.value}`;
     } else {
+      this.value = '0.00';
       summaryAmount.textContent = '$0.00';
     }
     updatePerPersonAmount();
