@@ -92,6 +92,10 @@ app.get('/profile', (req, res) => {
     res.render('pages/profile_page', { isLoggedIn });
   });
 
+  app.get('/groups', (req, res) => {
+    res.render('pages/groups');
+  });
+
   app.get('/friends', (req, res) => {
     const isLoggedIn = req.session.user ? true : false;
     res.render('pages/friends', { isLoggedIn });
