@@ -19,6 +19,7 @@ const hbs = handlebars.create({
 const user = {
   username: undefined,
   password: undefined,
+  id: undefined,
 };
 
 // database configuration
@@ -83,6 +84,7 @@ app.get('/', (req, res) => {
   });
 
   app.get('/home', (req, res) => {
+
     const isLoggedIn = req.session.user ? true : false;
     res.render('pages/home', { isLoggedIn });
   });
@@ -148,6 +150,7 @@ app.post('/login', async (req, res) => {
         .then(async function (data) { 
           user.username = data[0].username;
           user.password = data[0].password;
+          user.id = data[0].user_id;
           //hash the password using bcrypt library
           const match = await bcrypt.compare(req.body.password, user.password);
 
@@ -184,18 +187,18 @@ app.post('/add_transaction', (req, res) => {
 });
 
 app.put('/add_friend', (req, res) => {
-  let find_user_q = 'SELECT user_id FROM users WHERE username=$1;'
-  let add_friend_q = `INSERT INTO friends (user_id, friend_id) VALUES ($1, $2) RETURNING *;`
-  var friend_id = -1;
-  var user_id = -1;
+  if (req.session){
+    let find_user_q = 'SELECT user_id FROM users WHERE username=$1;'
+    let add_friend_q = `INSERT INTO friends (user_id, friend_id) VALUES ($1, $2) RETURNING *;`
+    var friend_id = -1;
+    var user_id = -1;
 
-  db.one(find_user_q, [user.username] )
-        // if query execution succeeds
-        // send success message
-        .then(function (data) {
-          db.one(find_user_q, [req.query.friend_username])
+    if(user.id) { 
+      user_id = user.id;
+  
+      db.one(find_user_q, [req.query.friend_username])
           
-          .then(function (data) {
+        .then(function (data) {
             friend_id = data.user_id;
             console.log("friend found: " + data.user_id + friend_id);
 
@@ -219,17 +222,14 @@ app.put('/add_friend', (req, res) => {
             res.render('pages/friends', {message: "There was an error finding this user."})
             return console.log(err);
         });
-        user_id = data.user_id;
-        console.log("userFound: " + data.user_id + user_id);
-
-        })
-        // if query execution fails
-        // send error message
-        .catch(function (err) {
-          res.render('pages/friends', {message: "There was an error processing this request. Please check the entered username and try again."});
-          return console.log(err);
-          
-        });
+      }
+      else { 
+        res.render('pages/friends', {message: "There was an error processing this request. Please check the entered usernames and try again."});
+      }
+    }
+      else {
+        res.redirect('/login');
+      }
    
 });
 
@@ -238,6 +238,7 @@ app.get('/welcome', (req, res) => {
 });
 
 app.post('/createGroup', async (req, res) => {
+  if (req.session){
   let search_user_q = `SELECT * FROM users WHERE username = $1;`
   let create_group_q = `INSERT INTO groups (group_name) VALUES ($1) RETURNING group_id;`
   let users_to_groups_q = `INSERT INTO users_to_groups (user_id, group_id) VALUES ($1, $2) RETURNING user_id, group_id;`
@@ -275,7 +276,87 @@ app.post('/createGroup', async (req, res) => {
       res.status(404).send('User not found');
     });
   }
+}
+else {
+  res.redirect('/login');
+}
+
 });
+
+app.post('/createPayment', async (req, res) => {
+  if (req.session){
+  let find_user_q = 'SELECT user_id FROM users WHERE username=$1;'
+  let add_transaction_q = `INSERT INTO expenses (payer, payee, amount) VALUES ($1, $2, $3) RETURNING *;`
+  var payer_id = -1;
+  var payee_id = -1;
+  if(user.id) { 
+    payer_id = user.id;
+          db.one(find_user_q, [req.body.payee_username])
+          
+          .then(function (data) {
+            payee_id = data.user_id;
+
+            db.any(add_transaction_q, [payer_id, payee_id, req.body.amount])
+              // if query execution succeeds
+              // send success message
+            .then(function (data) {
+            console.log(data);
+            res.render('pages/payment', {message: 'Transaction Sent!'});
+            })
+          // if query execution fails
+          // send error message
+          .catch(function (err) {
+          res.render('pages/payment', {message: "There was an error processing this request. Please check the entered usernames and try again."});
+          return console.log(err);
+          });
+        })
+          .catch(function (err) {
+            res.render('pages/payment', {message: "There was an error finding this user."})
+            return console.log(err);
+        });
+  }
+  else { 
+    res.render('pages/friends', {message: "There was an error processing this request. Please check the entered usernames and try again."});
+  }
+  }
+  });
+
+
+  app.post('/createTransaction', async (req, res) => {
+    if (req.session){
+    let find_user_q = 'SELECT user_id FROM users WHERE username=$1;'
+    let add_transaction_q = `INSERT INTO transactions (amount, payee) VALUES ($1, $2) RETURNING *;`
+    var payer_ids = [];
+    var payee_id = -1;
+    if(user.id) { 
+      payee_id = user.id;
+            db.one(find_user_q, [req.body.payee_username])
+            
+            .then(function (data) {
+              payee_id = data.user_id;
+  
+              
+          })
+            .catch(function (err) {
+              res.render('pages/payment', {message: "There was an error finding this user."})
+              return console.log(err);
+          });
+    }
+    else { 
+      res.render('pages/friends', {message: "There was an error processing this request. Please check the entered usernames and try again."});
+    }
+    }
+    });
+
+    function addUserToTransaction() {
+      //todo: implement
+
+    }
+
+  
+
+  
+
 
 
 // *****************************************************
