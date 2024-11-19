@@ -329,7 +329,7 @@ app.post('/createPayment', async (req, res) => {
   }
   else { 
     res.render('pages/friends', {message: "There was an error processing this request. Please check the entered usernames and try again."});
-}
+  }
   }
   });
 
@@ -337,42 +337,34 @@ app.post('/createPayment', async (req, res) => {
   app.post('/createTransaction', async (req, res) => {
     if (req.session){
     let find_user_q = 'SELECT user_id FROM users WHERE username=$1;'
-    let add_transaction_q = `INSERT INTO expenses (payer, payee, amount) VALUES ($1, $2, $3) RETURNING *;`
-    var payer_id = -1;
+    let add_transaction_q = `INSERT INTO transactions (amount, payee) VALUES ($1, $2) RETURNING *;`
+    var payer_ids = [];
     var payee_id = -1;
     if(user.id) { 
-      payer_id = user.id;
-      db.task('createTransaction', task => {
-        return task.batch([task.any(add_image_q), task.any(add_review_q)]);
-      })
-    
-      .then(function (data) {
-        link_review_q = `INSERT INTO reviews_to_images (image_id, review_id) VALUES($1, $2) returning *`;
-        db.any(link_review_q, [data[0][0].image_id, data[1][0].review_id])
-        .then(function (data) {
-          res.status(201).json({
-            status: 'success',
-            data: data,
-            message: 'Data added successfully',
+      payee_id = user.id;
+            db.one(find_user_q, [req.body.payee_username])
+            
+            .then(function (data) {
+              payee_id = data.user_id;
+  
+              
+          })
+            .catch(function (err) {
+              res.render('pages/payment', {message: "There was an error finding this user."})
+              return console.log(err);
           });
-          return;
-    
-        })
-    
-        .catch(function (err) {
-          return console.log(err);
-        });
-      })
-    
-      .catch(function (err) {
-        return console.log(err);
-      });
     }
     else { 
       res.render('pages/friends', {message: "There was an error processing this request. Please check the entered usernames and try again."});
-  }
+    }
     }
     });
+
+    function addUserToTransaction() {
+      //todo: implement
+
+    }
+
   
 
   
