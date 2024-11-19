@@ -75,7 +75,8 @@ app.get('/', (req, res) => {
   });
 
   app.get('/login', (req, res) => {
-    res.render('pages/login');
+    const isLoggedIn = req.session.user ? true : false;
+    res.render('pages/login', { isLoggedIn });
   });
 
   app.get('/register', (req, res) => {
@@ -83,41 +84,28 @@ app.get('/', (req, res) => {
   });
 
   app.get('/home', (req, res) => {
-    if(req.session){
-      res.render('pages/home');
-    }
-    else {
-      res.redirect('/login');
-    }
+
+    const isLoggedIn = req.session.user ? true : false;
+    res.render('pages/home', { isLoggedIn });
   });
   
 app.get('/profile', (req, res) => {
-  if(req.session){
-    res.render('pages/profile_page');
-  }
-  else {
-    res.redirect('/login');
-  }
+    const isLoggedIn = req.session.user ? true : false;
+    res.render('pages/profile_page', { isLoggedIn });
+  });
+
+  app.get('/groups', (req, res) => {
+    res.render('pages/groups');
   });
 
   app.get('/friends', (req, res) => {
-    if(req.session){
-      res.render('pages/friends');
-    }
-    else {
-      res.redirect('/login');
-    }
-    
+    const isLoggedIn = req.session.user ? true : false;
+    res.render('pages/friends', { isLoggedIn });
   });
 
   app.get('/payment', (req, res) => {
-    if(req.session){
-      res.render('pages/payment');
-    }
-    else {
-      res.redirect('/login');
-    }
-    
+    const isLoggedIn = req.session.user ? true : false;
+    res.render('pages/payment', { isLoggedIn });
   });
 
 

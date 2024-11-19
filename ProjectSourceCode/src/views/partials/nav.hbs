@@ -3,7 +3,7 @@
     <div class="container-fluid" style="background-color: rebeccapurple;">
       <a class="navbar-brand d-flex align-items-center" href="/home" style="color: white;">
         <i class="bi bi-house-door" style="font-size: 1.5rem;"></i>
-        Payback
+        PayBack
       </a>
       
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -12,21 +12,30 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <li class="nav-item">
+          {{#if isLoggedIn}}
+          <li class="nav-item" id="profile">
             <a class="nav-link" href="/profile" style="color: white;">Profile</a> 
           </li>
-          <li class="nav-item">
+          <li class="nav-item" id="payment">
             <a class="nav-link" href="/payment" style="color: white;">Payments</a> 
-          </li>
           <li class="nav-item">
+            <a class="nav-link" href="/groups" style="color: white;">Groups</a> 
+          </li>
+          <li class="nav-item" id="friends">
             <a class="nav-link" href="/friends" style="color: white;">Friends</a> 
           </li>
-          <li class="nav-item">
+          <li class="nav-item" id="logout">
+            <a id="logout" class="nav-link" href="/logout" style="color: white;">Logout</a>
+          </li>
+
+          {{else}}
+          <li class="nav-item" id="login">
             <a class="nav-link" href="/login" style="color: white;">Login</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/logout" style="color: white;">Logout</a>
+          <li class="nav-item" id="register">
+            <a id="register" class="nav-link" href="/register" style="color: white;">Register</a>
           </li>
+          {{/if}}
         </ul>
       </div>
     </div>
