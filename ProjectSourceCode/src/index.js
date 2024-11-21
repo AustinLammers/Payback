@@ -52,6 +52,7 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
+app.use(express.static(__dirname + '/resources'));
 
 // initialize session variables
 app.use(
@@ -250,6 +251,7 @@ app.get('/welcome', (req, res) => {
 });
 
 app.post('/createGroup', async (req, res) => {
+  console.log(req.body);
   if (req.session){
   let search_user_q = `SELECT * FROM users WHERE username = $1;`
   let create_group_q = `INSERT INTO groups (group_name) VALUES ($1) RETURNING group_id;`
@@ -267,6 +269,8 @@ app.post('/createGroup', async (req, res) => {
     .then(function (data) {
       userResult = data[0][0].user_id;
       groupResult = data[1][0].group_id;
+      console.log(userResult);
+      console.log(groupResult);
       db.any(users_to_groups_q, [userResult, groupResult])
       .then(mappingData => {
         return {data, mappingData};
