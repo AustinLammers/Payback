@@ -20,7 +20,7 @@
   <link rel = "stylesheet" href = "./resources/css/style.css">
   </head>
 
-  <body onload="initializeCalendar()">
+  <body onload="initializeCalendar()" style="background-color:antiquewhite">
     <!-- Calendar elements -->
     <div class="container">
       <div id="calendar" class="row"></div>
@@ -36,14 +36,14 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style = "float: right;"></button>
           </div>
           <div class="modal-body">
-            <form id = "event_form">
+            <form method = "POST" action = "http://localhost:3000/createGroup" id = "event_form">
               <!-- Include form fields to gather the information listed below. -->
               <div class="form-group">
-                <label for="event_name">Event Name</label>
+                <label for="event_name">Group Name</label>
                 <input type="text" id="event_name" class="form-control" placeholder="Enter event name">
               </div>
               <div class="form-group">
-                <label for="event_weekday">Weekday</label>
+                <label for="event_weekday">Payment Day</label>
                 <select id="event_weekday" class="form-control" required>
                   <option value="" disabled selected>Select a weekday</option>
                   <option value="monday">Monday</option>
@@ -56,27 +56,12 @@
                 </select>
               </div>
               <div class="form-group">
-                <label for="event_time">Time</label>
+                <label for="event_time">Payment Time</label>
                 <input type="time" id="event_time" class="form-control">
               </div>
-              <div>
-                <label for="event_modality">Event Modality</label>
-                <select id="event_modality" class="form-control" onchange="updateLocationOptions(this.value)">
-                  <option value="In-person">In-person</option>
-                  <option value="Remote">Remote</option>
-                </select>
-              </div> 
-              <div class="form-group" id = "event_location_group" >
-                <label for="event_location">Location</label>
-                <input type="text" id="event_location" class="form-control" placeholder="Enter event location">
-              </div>
-              <div class="form-group" id = "event_url_group">
-                <label for="event_remote_url">Remote URL</label>
-                <input type="text" pattern="/^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/" id="event_remote_url" class="form-control" placeholder="https://">
-              </div>
-              <div id="event_attendees" class="form-group">
-                <label for="event_attendees">Event Attendees</label>
-                <input type="text" id="event_attendees" class="form-control" placeholder="Enter names of expected attendees separated by commas">
+              <div class="form-group">
+                <label for="event_attendees">Add Users</label>
+                <input type="text" id="event_attendees" class="form-control" placeholder="Enter username">
               </div>
             <div style = "margin-top: 20px;">
               <button id="submit_button" class="btn btn-primary" type="submit">Create Event</button>
@@ -88,7 +73,7 @@
         </div>
       </div>
     </div>
-    <script src = "resources/js/script.js"> </script>
+    <script src = "js/groups.js"> </script>
     <script
   src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
   integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
