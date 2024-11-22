@@ -1,22 +1,22 @@
 const CALENDAR_EVENTS = [
-    {
-      name: 'Running',
-      day: 'wednesday',
-      time: '09:00',
-      modality: 'In-person',
-      location: 'Boulder',
-      url: '',
-      attendees: 'Alice, Jack, Ben',
-    },
-    {
-      name: 'Lecture',
-      day: 'wednesday',
-      time: '11:00',
-      modality: 'In-person',
-      location: 'Boulder',
-      url: '',
-      attendees: '',
-    },
+    // {
+    //   name: 'Running',
+    //   day: 'wednesday',
+    //   time: '09:00',
+    //   modality: 'In-person',
+    //   location: 'Boulder',
+    //   url: '',
+    //   attendees: 'Alice, Jack, Ben',
+    // },
+    // {
+    //   name: 'Lecture',
+    //   day: 'wednesday',
+    //   time: '11:00',
+    //   modality: 'In-person',
+    //   location: 'Boulder',
+    //   url: '',
+    //   attendees: '',
+    // },
   ];
   
   const CALENDAR_DAYS = [
@@ -158,16 +158,13 @@ const CALENDAR_EVENTS = [
         name: "",
         day: day,
         time: "",
-        modality: "",
-        location: "",
-        url: "",
         attendees: "",
       };
   
       // @TODO: Update the innerHTML for modalTitle and submitButton
       // Replace <> with the correct attribute
-      modal_title.innerHTML = "Create Event";
-      submit_button.innerHTML = "Create Event";
+      modal_title.innerHTML = "Create Group";
+      submit_button.innerHTML = "Create Group";
   
       // Allocate a new event id. Note that nothing is inserted into the CALENDAR_EVENTS yet.
       // @TODO: Set the id to be the length of the CALENDAR_EVENTS because we are adding a new element
@@ -177,8 +174,8 @@ const CALENDAR_EVENTS = [
     }
     else {
       // We will default to "Update Event" as the text for the title and the submit button
-      modal_title.innerHTML = "Update Event";
-      submit_button.innerHTML = "Update Event";
+      modal_title.innerHTML = "Update Group";
+      submit_button.innerHTML = "Update Group";
     }
   
     // Once the event is fetched/created, populate the modal.
@@ -188,15 +185,11 @@ const CALENDAR_EVENTS = [
   
     // @TODO: Update remaining form fields of the modal with suitable values from the event.
     document.querySelector("#event_time").value = event.time;
-    document.querySelector("#event_modality").value = event.modality;
-    document.querySelector("#event_location").value = event.location;
-    document.querySelector("#event_remote_url").value = event.url;
     document.querySelector("#event_attendees").value = event.attendees;
   
   
     // Location options depend on the event modality
     // @TODO: pass event.modality as an argument to the updateLocationOptions() function. Replace <> with event.modality.
-    updateLocationOptions(event.modality);
   
     // Set the "action" event for the form to call the updateEventFromModal
     // when the form is submitted by clicking on the "Creat/Update Event" button
@@ -214,9 +207,6 @@ const CALENDAR_EVENTS = [
       name: document.querySelector('#event_name').value,
       day: document.querySelector('#event_weekday').value,
       time: document.querySelector('#event_time').value,
-      modality: document.querySelector('#event_modality').value,
-      location: document.querySelector('#event_location').value,
-      url: document.querySelector('#event_remote_url').value,
       attendees: document.querySelector('#event_attendees').value,
     };
   
@@ -225,27 +215,7 @@ const CALENDAR_EVENTS = [
     EVENT_MODAL.hide();
   }
   
-  function updateLocationOptions(modality_value) {
-    // @TODO: get the "Location" and "Remote URL" HTML elements from the modal.
-    // Use document.querySelector() or document.getElementById().
-    const location =  document.getElementById('event_location');
-    const remoteUrl = document.getElementById('event_remote_url');
-    const location_group = document.getElementById('event_location_group');
-    const url_group = document.getElementById("event_url_group");
-    // @TODO: Depending on the "value" change the visibility style of these fields on the modal.
-    // Use conditional statements.
-    if (modality_value == "In-person") {
-      location_group.classList.remove('hidden');
-      url_group.classList.add('hidden');
-      location.classList.remove('hidden');
-      remoteUrl.classList.add('hidden');
-    } else {
-      location_group.classList.add('hidden');
-      url_group.classList.remove('hidden');
-       location.classList.add('hidden');
-       remoteUrl.classList.remove('hidden');
-    } 
-  }
+
   
   /********************** PART B: 6.3: UPDATE DOM ******************************/
   
@@ -330,7 +300,7 @@ const CALENDAR_EVENTS = [
     const eventElem = document.querySelector(`#event-${id}`);
   
     if (eventElem) {
-      const tooltipContent = `Name: ${event.name} <br> Time: ${event.time} <br> Location: ${event.location}`;
+      const tooltipContent = `Payment Time: ${event.time} <br> Members: ${event.attendees}`;
       eventElem.setAttribute('data-bs-toggle', 'tooltip');
       eventElem.setAttribute('data-bs-html', 'true');
       eventElem.setAttribute('data-bs-title', tooltipContent);

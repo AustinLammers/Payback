@@ -23,8 +23,29 @@ CREATE TABLE IF NOT EXISTS expenses (
   amount DECIMAL,
   payer INTEGER NOT NULL,
   payee INTEGER NOT NULL,
-  FOREIGN KEY (payer) REFERENCES users (user_id) ON DELETE CASCADE, 
+  FOREIGN KEY (payee) REFERENCES users (user_id) ON DELETE CASCADE, 
   FOREIGN KEY (payer) REFERENCES users (user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS transactions (
+  trans_id SERIAL PRIMARY KEY NOT NULL,
+  amount DECIMAL,
+  payee INTEGER NOT NULL, 
+  FOREIGN KEY (payee) REFERENCES users (user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS users_to_transactions (
+  trans_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+  FOREIGN KEY (trans_id) REFERENCES transactions (trans_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS expenses_to_transactions (
+  trans_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+  FOREIGN KEY (trans_id) REFERENCES transactions (trans_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS friends (
