@@ -24,9 +24,9 @@ const user = {
 
 // database configuration
 const dbConfig = {
-  host: 'users_db_5n2p', // the database server
+  host: 'users_db', // the database server
   port: 5432, // the database port
-  database: process.env.POSTGRES_DB, // the database name
+  database: users_db_5n2p, // the database name
   user: process.env.POSTGRES_USER, // the user account to connect with
   password: process.env.POSTGRES_PASSWORD, // the password of the user account
 };
