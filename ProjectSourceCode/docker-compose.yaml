@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  db:
+  users_db_5n2p:
     image: postgres:14
     env_file: .env
     expose:
