@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS groups (
   group_id SERIAL PRIMARY KEY NOT NULL,
-  group_name VARCHAR(100)
+  group_name VARCHAR(100),
+  payment_day VARCHAR(100),
+  payment_time VARCHAR(100)
 );
 
 CREATE TABLE IF NOT EXISTS users_to_groups (
