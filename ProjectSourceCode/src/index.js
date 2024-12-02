@@ -20,6 +20,7 @@ const user = {
   username: undefined,
   password: undefined,
   id: undefined,
+  friends: undefined,
 };
 
 // database configuration
@@ -125,6 +126,7 @@ app.get('/profile', (req, res) => {
           .then(function (data) {
             console.log(data);
             res.render('pages/friends', { isLoggedIn, data });
+            user.friends = data;
           })
           // if query execution fails
           // send error message
@@ -248,7 +250,7 @@ app.post('/add_friend', (req, res) => {
     let add_friend_q = `INSERT INTO friends (user_id, friend_id) VALUES ($1, $2) RETURNING *;`
     var friend_id = -1;
     var user_id = -1;
-
+    let data = user.friends;
     if(user.id) { 
       user_id = user.id;
   
@@ -256,31 +258,29 @@ app.post('/add_friend', (req, res) => {
           
         .then(function (data) {
             friend_id = data.user_id;
-            console.log("friend found: " + data.user_id + friend_id);
 
         db.any(add_friend_q, [user_id, friend_id])
         // if query execution succeeds
         // send success message
         .then(function (data) {
-          console.log(data);
-          res.render('pages/friends', {isLoggedIn, message : "Friend added sucessfully!"});
+          res.redirect('/friends');
         })
         // if query execution fails
         // send error message
         .catch(function (err) {
-          res.render('pages/friends', {isLoggedIn, message : "Request could not be processed, Try again later."});
+          res.render('pages/friends', { isLoggedIn, message : "Request could not be processed, Try again later.", data });
           return console.log(err);
           
         });
         })
           
           .catch(function (err) {
-            res.render('pages/friends', {isLoggedIn, message: "There was an error finding this user."})
+            res.render('pages/friends', { isLoggedIn, message: "There was an error finding this user.", data })
             return console.log(err);
         });
       }
       else { 
-        res.render('pages/friends', {isLoggedIn, message: "There was an error processing this request. Please check the entered usernames and try again."});
+        res.render('pages/friends', { isLoggedIn, message: "There was an error processing this request. Please check the entered usernames and try again.", data });
       }
     }
       else {
