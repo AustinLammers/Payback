@@ -1,76 +1,35 @@
   <div class="container mt-4">
     <div class="row">
-      <div class="col-md-4">
-        <img src="https://raw.githubusercontent.com/AustinLammers/Payback/refs/heads/main/ProjectSourceCode/src/resources/img/Loan_Shark-512.webp" class="img-fluid" alt="Payback Icon">
-      </div>
       <div class="col-md-8" id="self-desc">
         <h2>Payback</h2>
-        <p>This is a filler page, we plan to have the Friends Interface here!</p>
+        <p>Welcome to the friends page!</p>
       </div>
     </div>
 
     <!-- Friends List Section -->
     <div class="mt-4">
       <h3>Friends List</h3>
-
+      
       <!-- All Friends (Alphabetically Sorted) -->
       <div id="friends-list">
         <!-- Friend 1 -->
-        <div class="friend-list-item">
+        {{#each data}}
+          <div class="friend-list-item">
           <div class="d-flex align-items-center">
-            <img src="https://via.placeholder.com/40" alt="Alice Smith">
-            <span>Alice Smith</span>
+            <img src="https://via.placeholder.com/40" alt="Friend Entry">
+            <span>{{username}}</span>
           </div>
         </div>
-
-        <!-- Friend 2 -->
-        <div class="friend-list-item">
-          <div class="d-flex align-items-center">
-            <img src="https://via.placeholder.com/40" alt="Bob Brown">
-            <span>Bob Brown</span>
-          </div>
-        </div>
-
-        <!-- Friend 3 -->
-        <div class="friend-list-item">
-          <div class="d-flex align-items-center">
-            <img src="https://via.placeholder.com/40" alt="David Green">
-            <span>David Green</span>
-          </div>
-        </div>
-
-        <!-- Friend 4 -->
-        <div class="friend-list-item">
-          <div class="d-flex align-items-center">
-            <img src="https://via.placeholder.com/40" alt="Emily White">
-            <span>Emily White</span>
-          </div>
-        </div>
-
-        <!-- Friend 5 -->
-        <div class="friend-list-item">
-          <div class="d-flex align-items-center">
-            <img src="https://via.placeholder.com/40" alt="John Doe">
-            <span>John Doe</span>
-          </div>
-        </div>
-
-        <!-- Friend 6 -->
-        <div class="friend-list-item">
-          <div class="d-flex align-items-center">
-            <img src="https://via.placeholder.com/40" alt="Sarah Jones">
-            <span>Sarah Jones</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
+        {{/each}}
+      
     <!-- Add Friend Form -->
     <div class="mt-4">
       <h4>Add a Friend</h4>
-      <form id="add-friend-form">
-        <input type="text" id="friend-name" class="form-control mb-2" placeholder="Enter friend's name">
+      <form id="add-friend-form" method="POST" action="/add_friend">
+        <input type="text" id="friend-name" name="friend_username" class="form-control mb-2" placeholder="Enter friend's name">
         <button type="submit" class="btn btn-primary">Add Friend</button>
       </form>
     </div>
   </div>
+
+  {{message}}

@@ -20,6 +20,7 @@ const user = {
   username: undefined,
   password: undefined,
   id: undefined,
+  friends: undefined,
 };
 
 // database configuration
@@ -101,7 +102,50 @@ app.get('/profile', (req, res) => {
 
   app.get('/friends', (req, res) => {
     const isLoggedIn = req.session.user ? true : false;
-    res.render('pages/friends', { isLoggedIn });
+
+    const lookup_friends_q = `SELECT friend_id FROM friends WHERE user_id=$1`;
+    let get_friend_name_q = `SELECT username FROM users WHERE user_id=`;
+
+    db.any(lookup_friends_q, [user.id])
+        // if query execution succeeds
+        // send success message
+        .then(function (data) {
+          console.log(data);
+          let ids = [];
+          idString = '';
+          let names = [];
+          for (let i =0; i < data.length; i++) {
+            console.log(data[i]);
+            ids.push(data[i].friend_id);
+          }
+          idString = `ANY('{ ` + ids.toString() + `}')`;
+          get_friend_name_q = get_friend_name_q + idString;
+          db.any(get_friend_name_q)
+          // if query execution succeeds
+          // send success message
+          .then(function (data) {
+            console.log(data);
+            res.render('pages/friends', { isLoggedIn, data });
+            user.friends = data;
+          })
+          // if query execution fails
+          // send error message
+          .catch(function (err) {
+            return console.log(err);
+          });
+          
+          
+          
+        })
+        // if query execution fails
+        // send error message
+        .catch(function (err) {
+          res.render('pages/home', { isLoggedIn, 'message':'there was an error loading your friends' });
+          return console.log(err);
+          
+        });
+
+    
   });
 
   app.get('/payment', (req, res) => {
@@ -199,45 +243,44 @@ app.post('/add_transaction', (req, res) => {
 
 });
 
-app.put('/add_friend', (req, res) => {
+app.post('/add_friend', (req, res) => {
+  const isLoggedIn = req.session.user ? true : false;
   if (req.session){
     let find_user_q = 'SELECT user_id FROM users WHERE username=$1;'
     let add_friend_q = `INSERT INTO friends (user_id, friend_id) VALUES ($1, $2) RETURNING *;`
     var friend_id = -1;
     var user_id = -1;
-
+    let data = user.friends;
     if(user.id) { 
       user_id = user.id;
   
-      db.one(find_user_q, [req.query.friend_username])
+      db.one(find_user_q, [req.body.friend_username])
           
         .then(function (data) {
             friend_id = data.user_id;
-            console.log("friend found: " + data.user_id + friend_id);
 
         db.any(add_friend_q, [user_id, friend_id])
         // if query execution succeeds
         // send success message
         .then(function (data) {
-          console.log(data);
-          res.render('pages/friends', {message : "Friend added sucessfully!"});
+          res.redirect('/friends');
         })
         // if query execution fails
         // send error message
         .catch(function (err) {
-          res.render('pages/friends', {message : "Request could not be processed, Try again later."});
+          res.render('pages/friends', { isLoggedIn, message : "Request could not be processed, Try again later.", data });
           return console.log(err);
           
         });
         })
           
           .catch(function (err) {
-            res.render('pages/friends', {message: "There was an error finding this user."})
+            res.render('pages/friends', { isLoggedIn, message: "There was an error finding this user.", data })
             return console.log(err);
         });
       }
       else { 
-        res.render('pages/friends', {message: "There was an error processing this request. Please check the entered usernames and try again."});
+        res.render('pages/friends', { isLoggedIn, message: "There was an error processing this request. Please check the entered usernames and try again.", data });
       }
     }
       else {
