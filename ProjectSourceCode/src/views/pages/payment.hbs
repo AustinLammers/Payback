@@ -3,12 +3,13 @@
     <div class="col-md-6">
       <div class="payment-card bg-white rounded-lg shadow-sm p-4">
         <h3 class="text-center mb-4">Send Payment</h3>
-
+      <form method="POST" action="/createPayment">
         <div class="amount-section mb-4">
           <h5 class="mb-2">Amount</h5>
           <div class="input-group">
             <span class="input-group-text">$</span>
-            <input type="text" 
+            <input type="text"
+                   name="amount" 
                    class="form-control text-center" 
                    id="payment-amount" 
                    placeholder="0.00" 
@@ -23,52 +24,68 @@
         <div class="recipients-section mb-4">
           <h5 class="mb-3">Select Recipients</h5>
           <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" value="" id="group-payment">
-            <label class="form-check-label" for="group-payment">
               Group Payment
             </label>
-            <small class="text-muted d-block">Select multiple recipients to split the payment</small>
+            <small class="text-muted d-block">Select the group to send the payment to</small>
           </div>
 
           <div class="list-group mt-3">
             <!-- Example recipients - replace with dynamic content -->
+            {{#each groups}}
             <div class="list-group-item d-flex align-items-center">
               <div class="form-check">
-                <input class="form-check-input me-2" type="checkbox" name="recipient" value="1">
+                <input class="form-check-input me-2" type="radio" name="recipient" value="g_{{group_id}}">
               </div>
               <div class="d-flex align-items-center flex-grow-1">
                 <div>
-                  <h6 class="mb-1">Sarah Johnson</h6>
-                  <p class="text-muted mb-0">@sarahj</p>
+                  <h6 class="mb-1">{{group_name}}</h6>
                 </div>
               </div>
             </div>
+            {{else}}
+            <div class="list-group-item d-flex align-items-center">
+              <div class="form-check">
+                
+              </div>
+              <div class="d-flex align-items-center flex-grow-1">
+                <div>
+                  <h6 class="mb-1">As far as we can tell, you are a part of no groups</h6>
+                </div>
+              </div>
+            </div>
+              
+            {{/each}}
 
-            <div class="list-group-item d-flex align-items-center">
-              <div class="form-check">
-                <input class="form-check-input me-2" type="checkbox" name="recipient" value="2">
-              </div>
-              <div class="d-flex align-items-center flex-grow-1">
-                <div>
-                  <h6 class="mb-1">Mike Davis</h6>
-                  <p class="text-muted mb-0">@miked</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="list-group-item d-flex align-items-center">
-              <div class="form-check">
-                <input class="form-check-input me-2" type="checkbox" name="recipient" value="3">
-              </div>
-              <div class="d-flex align-items-center flex-grow-1">
-                <div>
-                  <h6 class="mb-1">Emma Wilson</h6>
-                  <p class="text-muted mb-0">@emmaw</p>
-                </div>
-              </div>
-            </div>
+            <div class="form-check mb-2">
+              Friend Payment
+            </label>
+            <small class="text-muted d-block">Select the Friend to send a payment to</small>
           </div>
-        </div>
+
+          <div class="list-group mt-3">
+            {{#each friends}}
+            <div class="list-group-item d-flex align-items-center">
+              <div class="form-check">
+                <input class="form-check-input me-2" type="radio" name="recipient" value="f_{{user_id}}">
+              </div>
+              <div class="d-flex align-items-center flex-grow-1">
+                <div>
+                  <h6 class="mb-1">{{username}}</h6>
+                </div>
+              </div>
+            </div>
+            {{else}}
+            <div class="list-group-item d-flex align-items-center">
+              <div class="form-check">
+                
+              </div>
+              <div class="d-flex align-items-center flex-grow-1">
+                <div>
+                  <h6 class="mb-1">We couldn't find any of your friends</h6>
+                </div>
+              </div>
+            </div>
+            {{/each}}
 
         <div class="payment-summary mb-4 p-3 bg-light rounded">
           <h6 class="mb-2">Payment Summary</h6>
@@ -80,16 +97,13 @@
             <span>Recipients:</span>
             <span id="summary-recipients">0 selected</span>
           </div>
-          <div class="d-flex justify-content-between" id="per-person-amount" style="display: none !important;">
-            <span>Amount per person:</span>
-            <span>$0.00</span>
-          </div>
         </div>
 
         <div class="d-grid gap-2">
-          <button class="btn btn-primary btn-lg">Send Payment</button>
+          <button type="submit" class="btn btn-primary btn-lg">Send Payment</button>
           <button class="btn btn-outline-secondary">Cancel</button>
         </div>
+        </form>
       </div>
     </div>
   </div>

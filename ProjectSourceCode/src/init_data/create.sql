@@ -34,14 +34,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   FOREIGN KEY (payee) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS users_to_transactions (
-  trans_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
-  FOREIGN KEY (trans_id) REFERENCES transactions (trans_id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS expenses_to_transactions (
+CREATE TABLE IF NOT EXISTS expenses_to_groups (
   trans_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
