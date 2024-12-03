@@ -166,8 +166,8 @@ const CALENDAR_EVENTS = [
   
       // @TODO: Update the innerHTML for modalTitle and submitButton
       // Replace <> with the correct attribute
-      modal_title.innerHTML = "Create Event";
-      submit_button.innerHTML = "Create Event";
+      modal_title.innerHTML = "Create Group";
+      submit_button.innerHTML = "Create Group";
   
       // Allocate a new event id. Note that nothing is inserted into the CALENDAR_EVENTS yet.
       // @TODO: Set the id to be the length of the CALENDAR_EVENTS because we are adding a new element
@@ -177,8 +177,8 @@ const CALENDAR_EVENTS = [
     }
     else {
       // We will default to "Update Event" as the text for the title and the submit button
-      modal_title.innerHTML = "Update Event";
-      submit_button.innerHTML = "Update Event";
+      modal_title.innerHTML = "Update Group";
+      submit_button.innerHTML = "Update Group";
     }
   
     // Once the event is fetched/created, populate the modal.
