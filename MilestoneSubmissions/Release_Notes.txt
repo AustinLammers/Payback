@@ -40,3 +40,25 @@ __RELEASE NOTES__ (11/05/24)
         - Create group
         - Add a friend
         - Make a payment
+
+__RELEASE NOTES__ (11/18/24)
+- Page Development
+	- Friends page furnished
+	- Payment page Furnished
+	- Navbar options change based on login status
+	- Groups page added (WIP)    
+- Database 
+	- New tables 
+		- transactions 
+			- A transaction is a larger expense split between many people. It is composed of the "expenses" assigned to the 			participating parties
+		- users_to_transactions
+			- Used to assign a user as owing money to a certain person
+		- expenses_to_transactions 
+			- Used to assign expenses as belonging to a particular transaction. Used to track both the repayment of the 				transaction by to group and show history of payments belonging to the transaction
+- Endpoints
+    	- New endpoints
+        	- createPayment
+			- Creates a payment for a specified amount to a specified user
+        	- createTransaction
+			- Creates a transaction and distributes requests to participating parties (WIP)
+	- modified friends endpoint to remove one database transaction for finding the current user id. The id is now found once during 	login and saved in the user object until sign out.

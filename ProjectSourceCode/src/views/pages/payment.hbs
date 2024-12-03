@@ -1,11 +1,247 @@
-    <div class="container mt-4">
-        <div class="row">
-          <div class="col-md-4">
-            <img src=../resources/img/payback_icon.png id="self-image" width="500px" class="img-fluid"> <!--NOTE TO SELF, MAKE SURE TO ADD ICON LATER IN PRCOESS-->
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="payment-card bg-white rounded-lg shadow-sm p-4">
+        <h3 class="text-center mb-4">Send Payment</h3>
+
+        <div class="amount-section mb-4">
+          <h5 class="mb-2">Amount</h5>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="text" 
+                   class="form-control text-center" 
+                   id="payment-amount" 
+                   placeholder="0.00" 
+                   min="0" 
+                   step="1.00"
+                   onchange="this.value = parseFloat(this.value).toFixed(2)"
+                   required>
           </div>
-          <div class="col-md-8" id="self-desc">
-            <h2>Payback</h2>
-            <p>This is a filler page, we plan to have the Payment Interface here! </p>
+          <small class="text-muted d-block text-center mt-1">Use arrows to adjust by $1.00</small>
+        </div>
+
+        <div class="recipients-section mb-4">
+          <h5 class="mb-3">Select Recipients</h5>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" value="" id="group-payment">
+            <label class="form-check-label" for="group-payment">
+              Group Payment
+            </label>
+            <small class="text-muted d-block">Select multiple recipients to split the payment</small>
+          </div>
+
+          <div class="list-group mt-3">
+            <!-- Example recipients - replace with dynamic content -->
+            <div class="list-group-item d-flex align-items-center">
+              <div class="form-check">
+                <input class="form-check-input me-2" type="checkbox" name="recipient" value="1">
+              </div>
+              <div class="d-flex align-items-center flex-grow-1">
+                <div>
+                  <h6 class="mb-1">Sarah Johnson</h6>
+                  <p class="text-muted mb-0">@sarahj</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="list-group-item d-flex align-items-center">
+              <div class="form-check">
+                <input class="form-check-input me-2" type="checkbox" name="recipient" value="2">
+              </div>
+              <div class="d-flex align-items-center flex-grow-1">
+                <div>
+                  <h6 class="mb-1">Mike Davis</h6>
+                  <p class="text-muted mb-0">@miked</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="list-group-item d-flex align-items-center">
+              <div class="form-check">
+                <input class="form-check-input me-2" type="checkbox" name="recipient" value="3">
+              </div>
+              <div class="d-flex align-items-center flex-grow-1">
+                <div>
+                  <h6 class="mb-1">Emma Wilson</h6>
+                  <p class="text-muted mb-0">@emmaw</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
+        <div class="payment-summary mb-4 p-3 bg-light rounded">
+          <h6 class="mb-2">Payment Summary</h6>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Amount:</span>
+            <span id="summary-amount">$0.00</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Recipients:</span>
+            <span id="summary-recipients">0 selected</span>
+          </div>
+          <div class="d-flex justify-content-between" id="per-person-amount" style="display: none !important;">
+            <span>Amount per person:</span>
+            <span>$0.00</span>
+          </div>
+        </div>
+
+        <div class="d-grid gap-2">
+          <button class="btn btn-primary btn-lg">Send Payment</button>
+          <button class="btn btn-outline-secondary">Cancel</button>
+        </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.payment-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-primary {
+  background-color: #6c5ce7;
+  border-color: #6c5ce7;
+}
+
+.btn-primary:hover {
+  background-color: #5b4dd1;
+  border-color: #5b4dd1;
+}
+
+.list-group-item {
+  border-color: #f1f1f1;
+  padding: 1rem;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+  transition: background-color 0.2s ease;
+}
+
+.input-group .form-control {
+  font-size: 1.5rem;
+  height: auto;
+  padding: 0.75rem;
+}
+
+.input-group-text {
+  font-size: 1.5rem;
+  background-color: white;
+}
+
+/* Hide number input spinners in most browsers */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.payment-summary {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const amountInput = document.getElementById('payment-amount');
+  const summaryAmount = document.getElementById('summary-amount');
+  const recipientCount = document.getElementById('summary-recipients');
+  const perPersonAmount = document.getElementById('per-person-amount');
+  const groupPayment = document.getElementById('group-payment');
+  const recipientCheckboxes = document.getElementsByName('recipient');
+
+  // Format amount input
+  amountInput.addEventListener('input', function(e) {
+    let value = e.target.value;
+    
+    // Remove all non-numeric characters except decimal point
+    value = value.replace(/[^\d.]/g, '');
+    
+    // Ensure only one decimal point
+    const decimalPoints = value.match(/\./g);
+    if (decimalPoints && decimalPoints.length > 1) {
+      value = value.slice(0, value.lastIndexOf('.'));
+    }
+    
+    // Limit to two decimal places
+    if (value.includes('.')) {
+      const parts = value.split('.');
+      value = parts[0] + '.' + parts[1].slice(0, 2);
+    }
+    
+    // Update input value
+    e.target.value = value;
+    
+    // Format summary amount
+    if (value) {
+      const formattedAmount = parseFloat(value).toFixed(2);
+      summaryAmount.textContent = `$${formattedAmount}`;
+    } else {
+      summaryAmount.textContent = '$0.00';
+    }
+    
+    updatePerPersonAmount();
+  });
+  // Handle arrow keys for $1.00 increments
+  amountInput.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      let currentValue = parseFloat(this.value) || 0;
+      if (e.key === 'ArrowUp') {
+        currentValue += 1;
+      } else {
+        currentValue = Math.max(0, currentValue - 1);
+      }
+      this.value = currentValue.toFixed(2);
+      summaryAmount.textContent = `$${currentValue.toFixed(2)}`;
+      updatePerPersonAmount();
+    }
+  });
+
+  // Format on blur
+  amountInput.addEventListener('blur', function() {
+    if (this.value) {
+      this.value = parseFloat(this.value).toFixed(2);
+      summaryAmount.textContent = `$${this.value}`;
+    } else {
+      this.value = '0.00';
+      summaryAmount.textContent = '$0.00';
+    }
+    updatePerPersonAmount();
+  });
+
+  // Update recipients count
+  function updateRecipientCount() {
+    const selected = Array.from(recipientCheckboxes).filter(cb => cb.checked).length;
+    recipientCount.textContent = `${selected} selected`;
+    updatePerPersonAmount();
+  }
+
+  // Update per-person amount
+  function updatePerPersonAmount() {
+    const amount = parseFloat(amountInput.value || 0);
+    const selected = Array.from(recipientCheckboxes).filter(cb => cb.checked).length;
+    if (selected > 0 && groupPayment.checked) {
+      const perPerson = (amount / selected).toFixed(2);
+      perPersonAmount.style.display = 'flex';
+      perPersonAmount.querySelector('span:last-child').textContent = `$${perPerson}`;
+    } else {
+      perPersonAmount.style.display = 'none';
+    }
+  }
+
+  // Event listeners
+  recipientCheckboxes.forEach(cb => {
+    cb.addEventListener('change', updateRecipientCount);
+  });
+
+  groupPayment.addEventListener('change', function() {
+    updatePerPersonAmount();
+  });
+});
+</script>

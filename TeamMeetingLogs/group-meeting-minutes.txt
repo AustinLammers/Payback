@@ -93,3 +93,56 @@ __Overall Assignments__
 
 __Follow Up Items__
 	- Create individual tickets for the coming weeks work
+
+11/15/24 - Meeting
+
+__Minutes__
+	- Determined what the plan for the next week is
+	- Caught up some members
+	- Discussed what pages to change or add
+		- Home Page
+		- Payment Page
+__Major Decisions__
+
+__Overall Assignments__
+	- Xavier
+		- Update Nav Bar based on session
+		- Design Friends List Page
+	- Shaan
+		- Create the Payment Page
+	- Austin
+		- Connecting Profile Page + Payments page to the backend
+		- Add transaction endpoint
+	- Gil
+		- Add Groups Page
+		- Authentication methods for user sessions
+	- Alex
+		- Updating Login/Register Page
+
+
+11/22/24 - Meeting
+
+__Minutes__
+	- Discuss everyones roll for this week
+	- Discuss what everyone has been working on
+	- Making sure current project works
+		- All page links and page rendering works
+	- Discuss plan and meeting schedule for Fall break
+	
+__Major Decisions__
+
+__Overall Assignments__
+	-Xavier
+		- Getting friends page to query database
+	- Gil
+		- Finish Group page 
+		- Implement features and connect to database
+	- Austin
+		- Implement send payment button on payment page
+	- Shaan
+		- Finishing designing Request payment page
+		- Connect profile page 
+	- Alex
+		- Updating Login/Register Page
+	
+	
