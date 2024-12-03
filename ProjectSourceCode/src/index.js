@@ -298,10 +298,10 @@ app.post('/createGroup', async (req, res) => {
   console.log(b);
   // res.send("Received!");
  
-  const insertQuery = 'INSERT INTO GROUPS (group_name) VALUES ($1) returning *;'
+  const insertQuery = 'INSERT INTO GROUPS (group_name, payment_day, payment_time) VALUES ($1, $2, $3) returning *;'
  
   try{
-    const result = await db.one(insertQuery, [req.body.event_name]);
+    const result = await db.one(insertQuery, [req.body.event_name, req.body.event_weekday, req.body.event_time]);
     console.log("Inserted into db successfully : ", result);
     var group_id = result.group_id;
  
