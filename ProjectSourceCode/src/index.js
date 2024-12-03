@@ -21,6 +21,7 @@ const user = {
   password: undefined,
   id: undefined,
   friends: undefined,
+  groups: undefined,
 };
 
 // database configuration
@@ -97,7 +98,8 @@ app.get('/profile', (req, res) => {
   });
 
   app.get('/groups', (req, res) => {
-    res.render('pages/groups');
+    const isLoggedIn = req.session.user ? true : false;
+    res.render('pages/groups', { isLoggedIn });
   });
 
   app.get('/friends', (req, res) => {
@@ -113,7 +115,6 @@ app.get('/profile', (req, res) => {
           console.log(data);
           let ids = [];
           idString = '';
-          let names = [];
           for (let i =0; i < data.length; i++) {
             console.log(data[i]);
             ids.push(data[i].friend_id);
@@ -150,7 +151,89 @@ app.get('/profile', (req, res) => {
 
   app.get('/payment', (req, res) => {
     const isLoggedIn = req.session.user ? true : false;
-    res.render('pages/payment', { isLoggedIn });
+
+    const lookup_friends_q = `SELECT friend_id FROM friends WHERE user_id=$1`;
+    let get_friend_name_q = `SELECT user_id, username FROM users WHERE user_id=`;
+    let get_group_name_q = `SELECT (group_id, group_name) FROM groups WHERE group_id=`;
+    const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`
+    var groups = [];
+    var friends = [];
+
+    db.any(lookup_friends_q, [user.id])
+        // if query execution succeeds
+        // send success message
+        .then(function (data) {
+          console.log(data);
+          let ids = [];
+          idString = '';
+          let names = [];
+          for (let i =0; i < data.length; i++) {
+            console.log(data[i]);
+            ids.push(data[i].friend_id);
+          }
+          idString = `ANY('{ ` + ids.toString() + `}')`;
+          get_friend_name_q = get_friend_name_q + idString;
+          db.any(get_friend_name_q)
+          // if query execution succeeds
+          // send success message
+          .then(function (data) {
+            friends = data;
+            user.friends = data;
+            db.any(lookup_groups_q, [user.id])
+              // if query execution succeeds
+              // send success message
+              .then(function (data) {
+                console.log(data);
+                let gids = [];
+                idString = '';
+                let names = [];
+                for (let i =0; i < data.length; i++) {
+                  console.log(data[i]);
+                  ids.push(data[i].group_id);
+                }
+                gidString = `ANY('{ ` + gids.toString() + `}')`;
+                get_group_name_q = get_group_name_q + gidString;
+                db.any(get_group_name_q)
+                // if query execution succeeds
+                // send success message
+                .then(function (data) {
+                  groups = data;
+                  user.groups = data;
+                  res.render('pages/payment', { isLoggedIn, friends, groups })
+                })
+                // if query execution fails
+                // send error message
+                .catch(function (err) {
+                return console.log(err);
+            });
+          
+          
+          
+        })
+        // if query execution fails
+        // send error message
+        .catch(function (err) {
+          return console.log(err);
+          
+        });
+
+            
+          })
+          // if query execution fails
+          // send error message
+          .catch(function (err) {
+            return console.log(err);
+          });
+          
+          
+          
+        })
+        // if query execution fails
+        // send error message
+        .catch(function (err) {
+          return console.log(err);
+          
+        });
   });
 
 
@@ -328,6 +411,7 @@ app.post('/createPayment', async (req, res) => {
   let add_transaction_q = `INSERT INTO expenses (payer, payee, amount) VALUES ($1, $2, $3) RETURNING *;`
   var payer_id = -1;
   var payee_id = -1;
+  console.log(req.body);
   if(user.id) { 
     payer_id = user.id;
           db.one(find_user_q, [req.body.payee_username])
@@ -355,7 +439,7 @@ app.post('/createPayment', async (req, res) => {
         });
   }
   else { 
-    res.render('pages/friends', {message: "There was an error processing this request. Please check the entered usernames and try again."});
+    res.render('pages/home', {message: "There was an error processing this request. Please check the entered usernames and try again."});
   }
   }
   });
@@ -386,16 +470,7 @@ app.post('/createPayment', async (req, res) => {
     }
     }
     });
-
-    function addUserToTransaction() {
-      //todo: implement
-
-    }
-
   
-
-  
-
 
 
 // *****************************************************
