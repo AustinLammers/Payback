@@ -5,11 +5,11 @@
       <div class="profile-card bg-white rounded-lg shadow-sm p-4 mb-4">
         <div class="text-center">
           <img src="../resources/img/payback_icon.png" id="self-image" width="500px" class="img-fluid"> <!--NOTE TO SELF, MAKE SURE TO ADD ICON LATER IN PRCOESS-->
-          <h3 class="mb-2">Username</h3>
+          <h3 class="mb-2">{{username}}</h3>
           <p class="text-muted">Member since 11/5/2024</p>
           <div class="stats d-flex justify-content-around mt-3">
             <div class="stat-item">
-              <h6>$0.00</h6>
+              <h6>${{totalLoan}}</h6>
               <small class="text-muted">Loans</small>
             </div>
             <div class="stat-item">

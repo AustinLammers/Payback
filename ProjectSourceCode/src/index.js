@@ -91,10 +91,46 @@ app.get('/', (req, res) => {
     res.render('pages/home', { isLoggedIn });
   });
   
-app.get('/profile', (req, res) => {
-    const isLoggedIn = req.session.user ? true : false;
-    res.render('pages/profile_page', { isLoggedIn });
-  });
+  app.post('/profile', async (req, res) => {
+    try {
+        // Check if the user is logged in
+        if (!req.session.user || !req.session.user.id) {
+            console.error('User not logged in or session missing user id');
+            return res.status(401).send({ error: 'Unauthorized: Please log in' });
+        }
+
+        // Extract and validate input data
+        const { payee_username, amount } = req.body;
+
+        if (!payee_username || isNaN(amount) || amount <= 0) {
+            return res.status(400).send({ error: 'Invalid input data' });
+        }
+
+        // Fetch payee user ID
+        const payeeQuery = 'SELECT user_id FROM users WHERE username = $1';
+        const payeeResult = await db.oneOrNone(payeeQuery, [payee_username]);
+
+        if (!payeeResult) {
+            return res.status(404).send({ error: 'Payee not found' });
+        }
+        const payeeId = payeeResult.user_id;
+
+        // Insert into expenses table
+        const payerId = req.session.user.id;
+        const insertExpenseQuery = `
+            INSERT INTO expenses (amount, payer, payee) VALUES ($1, $2, $3)
+            RETURNING *`;
+
+        const expense = await db.one(insertExpenseQuery, [amount, payerId, payeeId]);
+
+        res.status(201).send({ message: 'Expense added successfully', expense });
+    } catch (err) {
+        console.error('Error adding expense:', err);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+
 
   app.get('/groups', (req, res) => {
     res.render('pages/groups');
