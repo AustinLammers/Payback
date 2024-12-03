@@ -89,6 +89,32 @@ app.get('/', (req, res) => {
 
     const isLoggedIn = req.session.user ? true : false;
     res.render('pages/home', { isLoggedIn });
+
+    const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
+
+    db.any(lookup_groups_q, [userId])
+    .then(groupIds => {
+      if (groupIds.length === 0) {
+        return res.render('pages/home', { isLoggedIn, message: 'You are not part of any groups.' });
+      }
+
+      const groupDetailsQuery = `SELECT g.group_id, g.group_name, u.username, et.due_amount, et.last_payment FROM groups g LEFT JOIN user_to_groups utg ON g.group_id = utg.group_id
+      LEFT JOIN users u ON utg.user_id = u.user_id LEFT JOIN expenses et ON u.user_id = et.user_id WHERE g.group_id = ANY($1::int[])`;
+
+      db.any(groupDetailsQuery, [groupIds.map(group => group.group_id)])
+        .then(groups => {
+          const formattedGroups = formatGroups(groups); // Function to format the groups data
+          res.render('pages/home', { isLoggedIn, groups: formattedGroups });
+        })
+        .catch(err => {
+          console.log(err);
+          res.render('pages/home', { isLoggedIn, message: 'Error loading group details.' });
+        });
+    })
+    .catch(err => {
+      console.log(err);
+      res.render('pages/home', { isLoggedIn, message: 'Error fetching group memberships.' });
+    });
   });
   
 app.get('/profile', (req, res) => {
@@ -392,7 +418,45 @@ app.post('/createPayment', async (req, res) => {
 
     }
 
-  
+    function formatGroups(groups) {
+      let groupedData = [];
+      let currentGroup = null;
+    
+      groups.forEach(item => {
+        // Check if we are still processing the same group or need to start a new group
+        if (!currentGroup || currentGroup.group_id !== item.group_id) {
+          // If we have a current group, push it to the result array
+          if (currentGroup) {
+            groupedData.push(currentGroup);
+          }
+    
+          // Start a new group
+          currentGroup = {
+            group_id: item.group_id,
+            group_name: item.group_name,
+            members: [],
+            total_dues: 0
+          };
+        }
+    
+        // Add member to current group
+        currentGroup.members.push({
+          username: item.username,
+          dues: item.due_amount || 0,
+          last_payment: item.last_payment || 'N/A'
+        });
+    
+        // Add the dues to the total dues for this group
+        currentGroup.total_dues += item.due_amount || 0;
+      });
+    
+      // Don't forget to push the last group
+      if (currentGroup) {
+        groupedData.push(currentGroup);
+      }
+    
+      return groupedData;
+    }
 
   
 

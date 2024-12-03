@@ -1,88 +1,73 @@
-    <div class="container mt-4">
-        <div class="row">
-          <div class="col-md-4">
-            <img src="https://raw.githubusercontent.com/AustinLammers/Payback/refs/heads/main/ProjectSourceCode/src/resources/img/Loan_Shark-512.webp" alt="Payback Icon"> <!--NOTE TO SELF, MAKE SURE TO ADD ICON LATER IN PRCOESS-->
-          </div>
-          <div class="col-md-8" id="self-desc">
-            <h2>Payback</h2>
-            <p>This is a filler page, we plan to have the home interface here! </p>
-          </div>
-          <div class="container mt-5">
-            <div class="container mt-5">
-            <h2>Leaderboard</h2>
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-4">
+      <img src="https://raw.githubusercontent.com/AustinLammers/Payback/refs/heads/main/ProjectSourceCode/src/resources/img/Loan_Shark-512.webp" alt="Payback Icon">
+    </div>
+    <div class="col-md-8" id="self-desc">
+      <h2>Payback</h2>
+      <p>This is the home interface where you can see your payment groups and dues!</p>
+    </div>
 
-            <!-- Group A -->
-            <div class="group-container">
-              <div class="table-wrapper">
-                <h3>Group A</h3>
-                <table id="groupA" class="display">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>The Dues</th>
-                      <th>Last Payment</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>John Doe</td>
-                      <td>$15.76</td>
-                      <td>2024-10-01</td>
-                    </tr>
-                    <tr>
-                      <td>Alice Smith</td>
-                      <td>$10</td>
-                      <td>2024-09-28</td>
-                    </tr>
-                    <tr>
-                      <td>Bob Brown</td>
-                      <td>$32</td>
-                      <td>2024-09-20</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="dues-text">
-                <h4>Your Dues</h4>
-                <p>Total Dues: $15.50</p>
-              </div>
-              <!-- Group B -->
-              <div class="group-container">
-                <div class="table-wrapper">
-                  <h3>Group B</h3>
-                  <table id="groupB" class="display">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>The Dues</th>
-                        <th>Last Payment</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Emily White</td>
-                        <td>$18</td>
-                        <td>2024-10-05</td>
-                      </tr>
-                      <tr>
-                        <td>David Green</td>
-                        <td>$17</td>
-                        <td>2024-10-02</td>
-                      </tr>
-                      <tr>
-                        <td>Sarah Jones</td>
-                        <td>$102.51</td>
-                        <td>2024-09-25</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="dues-text">
-                  <h4>Your Dues</h4>
-                  <p>Total Dues: $32</p> <!-- Calculate total dues for Group B -->
-                </div>
-              </div>
-            </div>
+    <div class="container mt-5">
+      <h2>Your Groups</h2>
+
+      {{#each groups}}
+        <div class="group-container">
+          <div class="table-wrapper">
+            <h3>{{this.group_name}}</h3>
+            <table class="display">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>The Dues</th>
+                  <th>Last Payment</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each this.members}}
+                  <tr>
+                    <td>{{this.username}}</td>
+                    <td>${{this.dues}}</td>
+                    <td>{{this.last_payment}}</td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="dues-text">
+            <h4>Your Dues</h4>
+            <p>Total Dues: ${{this.total_dues}}</p>
+          </div>
+
+          <div>
+            <canvas id="group-{{this.group_id}}-chart" width="400" height="200"></canvas>
+            <script>
+              var ctx = document.getElementById('group-{{this.group_id}}-chart').getContext('2d');
+              var chart = new Chart(ctx, {
+                type: 'bar', 
+                data: {
+                  labels: [{{#each this.members}}'{{this.username}}'{{#unless @last}},{{/unless}}{{/each}}],
+                  datasets: [{
+                    label: 'Dues owed',
+                    data: [{{#each this.members}}{{this.dues}}{{#unless @last}},{{/unless}}{{/each}}],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                  }]
+                },
+                options: {
+                  scales: {
+                    y: {
+                      beginAtZero: true
+                    }
+                  }
+                }
+              });
+            </script>
           </div>
         </div>
-      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>
