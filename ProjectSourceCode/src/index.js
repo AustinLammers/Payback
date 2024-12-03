@@ -20,11 +20,12 @@ const user = {
   username: undefined,
   password: undefined,
   id: undefined,
+  friends: undefined,
 };
 
 // database configuration
 const dbConfig = {
-  host: 'db', // the database server
+  host: process.env.POSTGRES_HOST, // the database server
   port: 5432, // the database port
   database: process.env.POSTGRES_DB, // the database name
   user: process.env.POSTGRES_USER, // the user account to connect with
@@ -101,7 +102,50 @@ app.get('/profile', (req, res) => {
 
   app.get('/friends', (req, res) => {
     const isLoggedIn = req.session.user ? true : false;
-    res.render('pages/friends', { isLoggedIn });
+
+    const lookup_friends_q = `SELECT friend_id FROM friends WHERE user_id=$1`;
+    let get_friend_name_q = `SELECT username FROM users WHERE user_id=`;
+
+    db.any(lookup_friends_q, [user.id])
+        // if query execution succeeds
+        // send success message
+        .then(function (data) {
+          console.log(data);
+          let ids = [];
+          idString = '';
+          let names = [];
+          for (let i =0; i < data.length; i++) {
+            console.log(data[i]);
+            ids.push(data[i].friend_id);
+          }
+          idString = `ANY('{ ` + ids.toString() + `}')`;
+          get_friend_name_q = get_friend_name_q + idString;
+          db.any(get_friend_name_q)
+          // if query execution succeeds
+          // send success message
+          .then(function (data) {
+            console.log(data);
+            res.render('pages/friends', { isLoggedIn, data });
+            user.friends = data;
+          })
+          // if query execution fails
+          // send error message
+          .catch(function (err) {
+            return console.log(err);
+          });
+          
+          
+          
+        })
+        // if query execution fails
+        // send error message
+        .catch(function (err) {
+          res.render('pages/home', { isLoggedIn, 'message':'there was an error loading your friends' });
+          return console.log(err);
+          
+        });
+
+    
   });
 
   app.get('/payment', (req, res) => {
@@ -199,45 +243,44 @@ app.post('/add_transaction', (req, res) => {
 
 });
 
-app.put('/add_friend', (req, res) => {
+app.post('/add_friend', (req, res) => {
+  const isLoggedIn = req.session.user ? true : false;
   if (req.session){
     let find_user_q = 'SELECT user_id FROM users WHERE username=$1;'
     let add_friend_q = `INSERT INTO friends (user_id, friend_id) VALUES ($1, $2) RETURNING *;`
     var friend_id = -1;
     var user_id = -1;
-
+    let data = user.friends;
     if(user.id) { 
       user_id = user.id;
   
-      db.one(find_user_q, [req.query.friend_username])
+      db.one(find_user_q, [req.body.friend_username])
           
         .then(function (data) {
             friend_id = data.user_id;
-            console.log("friend found: " + data.user_id + friend_id);
 
         db.any(add_friend_q, [user_id, friend_id])
         // if query execution succeeds
         // send success message
         .then(function (data) {
-          console.log(data);
-          res.render('pages/friends', {message : "Friend added sucessfully!"});
+          res.redirect('/friends');
         })
         // if query execution fails
         // send error message
         .catch(function (err) {
-          res.render('pages/friends', {message : "Request could not be processed, Try again later."});
+          res.render('pages/friends', { isLoggedIn, message : "Request could not be processed, Try again later.", data });
           return console.log(err);
           
         });
         })
           
           .catch(function (err) {
-            res.render('pages/friends', {message: "There was an error finding this user."})
+            res.render('pages/friends', { isLoggedIn, message: "There was an error finding this user.", data })
             return console.log(err);
         });
       }
       else { 
-        res.render('pages/friends', {message: "There was an error processing this request. Please check the entered usernames and try again."});
+        res.render('pages/friends', { isLoggedIn, message: "There was an error processing this request. Please check the entered usernames and try again.", data });
       }
     }
       else {
@@ -251,53 +294,33 @@ app.get('/welcome', (req, res) => {
 });
 
 app.post('/createGroup', async (req, res) => {
-  console.log(req.body);
-  if (req.session){
-  let search_user_q = `SELECT * FROM users WHERE username = $1;`
-  let create_group_q = `INSERT INTO groups (group_name) VALUES ($1) RETURNING group_id;`
-  let users_to_groups_q = `INSERT INTO users_to_groups (user_id, group_id) VALUES ($1, $2) RETURNING user_id, group_id;`
-
-  const {username, group_name} = req.body;
-  var userResult; 
-  var groupResult;
-
-  if(req.body.username) {
-    db.task('get-everything', task => {
-      return task.batch([task.any(search_user_q, [username]), task.any(create_group_q, [group_name])]);
+  const b = req.body;
+  console.log(b);
+  // res.send("Received!");
+ 
+  const insertQuery = 'INSERT INTO GROUPS (group_name) VALUES ($1) returning *;'
+ 
+  try{
+    const result = await db.one(insertQuery, [req.body.event_name]);
+    console.log("Inserted into db successfully : ", result);
+    var group_id = result.group_id;
+ 
+    let strArray = req.body.event_attendees.split(',');
+    console.log("Assumed usernames = ", strArray)
+ 
+    strArray.foreach(async inputUsername => {
+      var user_id = await db.one('SELECT user_id FROM users WHERE username = $1', [inputUsername]);
+      var result = await db.one('INSERT INTO user_to_groups (user_id, group_id) values ($1, $2)', [user_id, group_id])
     })
-
-    .then(function (data) {
-      userResult = data[0][0].user_id;
-      groupResult = data[1][0].group_id;
-      console.log(userResult);
-      console.log(groupResult);
-      db.any(users_to_groups_q, [userResult, groupResult])
-      .then(mappingData => {
-        return {data, mappingData};
-      })
-      .then((finalResult) => {
-        res.status(201).json({
-          status: 'success',
-          data: finalResult,
-          message: 'data added successfully',
-      });
-    })
-      .catch(function (err) {
-        return console.log(err);
-      });
-    });
-
-  } else {
-    app.use((req, res) => {
-      res.status(404).send('User not found');
-    });
+ 
+    res.redirect("/groups");
   }
-}
-else {
-  res.redirect('/login');
-}
-
-});
+ 
+  catch {
+    console.log("ERROR!");
+    res.redirect("/groups");
+  }
+ });
 
 app.post('/createPayment', async (req, res) => {
   if (req.session){
