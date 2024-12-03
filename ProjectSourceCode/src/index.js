@@ -97,7 +97,49 @@ app.get('/profile', (req, res) => {
   });
 
   app.get('/groups', (req, res) => {
-    res.render('pages/groups');
+    const isLoggedIn = req.session.user ? true : false;
+
+    const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
+    let get_group_name_q = `SELECT group_name FROM groups WHERE group_id=`;
+
+    db.any(lookup_groups_q, [user.id])
+        // if query execution succeeds
+        // send success message
+        .then(function (data) {
+          console.log(data);
+          let ids = [];
+          idString = '';
+          for (let i =0; i < data.length; i++) {
+            console.log(data[i]);
+            ids.push(data[i].group_id);
+          }
+          idString = `ANY('{ ` + ids.toString() + `}')`;
+          get_group_name_q = get_group_name_q + idString;
+          db.any(get_group_name_q)
+          // if query execution succeeds
+          // send success message
+          .then(function (data) {
+            console.log(data);
+            res.render('pages/groups', { isLoggedIn, data });
+            user.groups = data;
+          })
+          // if query execution fails
+          // send error message
+          .catch(function (err) {
+            return console.log(err);
+          });
+
+
+
+        })
+        // if query execution fails
+        // send error message
+        .catch(function (err) {
+          res.render('pages/home', { isLoggedIn, 'message':'there was an error loading your friends' });
+          return console.log(err);
+
+        });
+   
   });
 
   app.get('/friends', (req, res) => {
