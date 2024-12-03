@@ -27,6 +27,18 @@
      <!-- All elements of the webpage will be added within this div -->
    </div>
 
+   <div id="friends-list">
+        <!-- Friend 1 -->
+        {{#each data}}
+          <div class="friend-list-item">
+          <div class="d-flex align-items-center">
+            <img src="https://via.placeholder.com/40" alt="Friend Entry">
+            <span>{{username}}</span>
+            <span>{{username}}</span>
+          </div>
+        </div>
+        {{/each}}
+
 
    <form method="POST"
          action="/createGroup"
