@@ -9,7 +9,12 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS groups (
   group_id SERIAL PRIMARY KEY NOT NULL,
-  group_name VARCHAR(100)
+  group_name VARCHAR(100),
+  payee INTEGER NOT NULL, 
+  amount DECIMAL NOT NULL,
+  FOREIGN KEY (payee) REFERENCES users (user_id) ON DELETE CASCADE,
+  payment_day VARCHAR(100),
+  payment_time VARCHAR(100)
 );
 
 CREATE TABLE IF NOT EXISTS users_to_groups (
@@ -20,6 +25,7 @@ CREATE TABLE IF NOT EXISTS users_to_groups (
 );
 
 CREATE TABLE IF NOT EXISTS expenses (
+  trans_id SERIAL PRIMARY KEY NOT NULL,
   amount DECIMAL,
   payer INTEGER NOT NULL,
   payee INTEGER NOT NULL,
@@ -27,25 +33,11 @@ CREATE TABLE IF NOT EXISTS expenses (
   FOREIGN KEY (payer) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS transactions (
-  trans_id SERIAL PRIMARY KEY NOT NULL,
-  amount DECIMAL,
-  payee INTEGER NOT NULL, 
-  FOREIGN KEY (payee) REFERENCES users (user_id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS users_to_transactions (
+CREATE TABLE IF NOT EXISTS expenses_to_groups (
   trans_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
-  FOREIGN KEY (trans_id) REFERENCES transactions (trans_id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS expenses_to_transactions (
-  trans_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
-  FOREIGN KEY (trans_id) REFERENCES transactions (trans_id) ON DELETE CASCADE
+  group_id INTEGER NOT NULL,
+  FOREIGN KEY (group_id) REFERENCES groups (group_id) ON DELETE CASCADE,
+  FOREIGN KEY (trans_id) REFERENCES expenses (trans_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS friends (
