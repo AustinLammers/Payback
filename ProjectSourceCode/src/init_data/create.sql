@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS groups (
   group_id SERIAL PRIMARY KEY NOT NULL,
-  group_name VARCHAR(100)
+  group_name VARCHAR(100),
+  payee INTEGER NOT NULL, 
+  FOREIGN KEY (payee) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS users_to_groups (

@@ -427,18 +427,19 @@ else {
 
 app.post('/createPayment', async (req, res) => {
   if (req.session){
-  let find_user_q = 'SELECT user_id FROM users WHERE username=$1;'
+  let get_group_payee_user_q = 'SELECT payee_id FROM groups WHERE group_id=$1;'
   let add_transaction_q = `INSERT INTO expenses (payer, payee, amount) VALUES ($1, $2, $3) RETURNING *;`
+  const add_transaction_to_group = `INSERT INTO expenses_to_groups (trans_id, group_id) VALUES ($1, $2) RETURNING *;`
   var payer_id = -1;
   var payee_id = -1;
   console.log(req.body);
   if(user.id) { 
     payer_id = user.id;
-          db.one(find_user_q, [req.body.payee_username])
-          
-          .then(function (data) {
-            payee_id = data.user_id;
+    paymentTag = req.body.recipient.split('_');
+    payee_id = +paymentTag[1];
+    paymentType = paymentTag[0];
 
+    if (paymentType == 'f'){ // if we are paying to a friend
             db.any(add_transaction_q, [payer_id, payee_id, req.body.amount])
               // if query execution succeeds
               // send success message
@@ -449,19 +450,57 @@ app.post('/createPayment', async (req, res) => {
           // if query execution fails
           // send error message
           .catch(function (err) {
-          res.render('pages/payment', {message: "There was an error processing this request. Please check the entered usernames and try again."});
+          res.render('pages/payment', {message: "There was an error processing this request. Please try again."});
           return console.log(err);
           });
-        })
+    }
+    else { // if we are paying a group
+      db.any(get_group_payee_user_q, [payee_id])
+        // if query execution succeeds
+        // send success message
+      .then(function (data) {
+        var payee_user = data.payee_id;
+        db.any(add_transaction_q, [payer_id, payee_user, req.body.amount])
+              // if query execution succeeds
+              // send success message
+            .then(function (data) {
+              db.any(add_transaction_to_group, [data.trans_id, payee_id])
+              // if query execution succeeds
+              // send success message
+              .then(function (data) { 
+                
+                res.render('pages/payment', {message: 'Transaction Sent!'});
+              })
+              // if query execution fails
+              // send error message
+              .catch(function (err) {
+                return console.log(err);
+                
+              });
+            })
+          // if query execution fails
+          // send error message
           .catch(function (err) {
-            res.render('pages/payment', {message: "There was an error finding this user."})
-            return console.log(err);
-        });
+          res.render('pages/payment', {message: "There was an error processing this request. Please try again."});
+          return console.log(err);
+          });
+
+      })
+      // if query execution fails
+      // send error message
+      .catch(function (err) {
+        res.render('pages/payment', {message: "There was an error processing this request. Please try again."});
+        return console.log(err);
+    });
+    }
+    }
+    else { // If there is no saved user_id, we cant perform the operation
+      res.render('pages/payment', {message: "There was an error processing this request. Please try again."});
+    
   }
-  else { 
-    res.render('pages/home', {message: "There was an error processing this request. Please check the entered usernames and try again."});
   }
-  }
+          
+  
   });
 
 
