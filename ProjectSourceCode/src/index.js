@@ -102,16 +102,19 @@ app.get('/profile', (req, res) => {
 
 
     const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
-    let get_group_name_q = `SELECT group_name FROM groups WHERE group_id=`;
+    let get_group_name_q = `SELECT group_name FROM groups WHERE group_id =`;
+    let get_user_names_q = `SELECT username FROM users WHERE user_id = `;
+    let get_user_ids_q = `SELECT user_id from user_to_groups WHERE group_id =`;
 
     db.any(lookup_groups_q, [user.id])
         // if query execution succeeds
         // send success message
         .then(function (data) {
+          console.log("group_ids:")
           console.log(data);
           let ids = [];
           idString = '';
-          for (let i =0; i < data.length; i++) {
+          for (let i = 0; i < data.length; i++) {
             console.log(data[i]);
             ids.push(data[i].group_id);
           }
@@ -121,9 +124,25 @@ app.get('/profile', (req, res) => {
           // if query execution succeeds
           // send success message
           .then(function (data) {
+            console.log("group_names:")
             console.log(data);
             res.render('pages/groups', { isLoggedIn, data });
             user.groups = data;
+          })
+          // if query execution fails
+          // send error message
+          .catch(function (err) {
+            return console.log(err);
+          });
+          get_user_ids_q = get_user_ids_q + idString;
+          db.any(get_user_ids_q)
+          // if query execution succeeds
+          // send success message
+          .then(function (data) {
+            console.log("user_names:")
+            console.log(data);
+            res.render('pages/groups', { isLoggedIn, data });
+            user.username = data;
           })
           // if query execution fails
           // send error message
@@ -431,19 +450,20 @@ app.post('/createGroup', async (req, res) => {
     console.log("Inserted into db successfully : ", result);
     var group_id = result.group_id;
  
-    let strArray = req.body.event_attendees.split(',');
+    let strArray = req.body.event_attendees.split(', ');
     console.log("Assumed usernames = ", strArray)
  
-    strArray.foreach(async inputUsername => {
+    strArray.forEach(async inputUsername => {
       var user_id = await db.one('SELECT user_id FROM users WHERE username = $1', [inputUsername]);
-      var result = await db.one('INSERT INTO user_to_groups (user_id, group_id) values ($1, $2)', [user_id, group_id])
+      var result = await db.none('INSERT INTO users_to_groups (user_id, group_id) values ($1, $2)', [user_id.user_id, group_id])
     })
  
     res.redirect("/groups");
   }
  
-  catch {
+  catch (error) {
     console.log("ERROR!");
+    console.log(error)
     res.redirect("/groups");
   }
  });

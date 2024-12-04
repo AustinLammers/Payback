@@ -19,7 +19,7 @@
   
   {{!-- <link rel = "stylesheet" href = "./resources/css/style.css"> --}}
   </head>
-<body onload="initializeCalendar()" style="background-color:antiquewhite">
+<body>
    <!-- Calendar elements -->
    <div class="container">
      <div id="calendar" class="row"></div>
@@ -33,10 +33,12 @@
           <div class="friend-list-item">
           <div class="d-flex align-items-center">
             <img src="https://via.placeholder.com/40" alt="Friend Entry">
-            <span>{{username}}</span>
+            <span>{{group_name}}</span>
             <span>{{username}}</span>
           </div>
         </div>
+        {{else}}
+        There are no groups
         {{/each}}
 
 
