@@ -99,7 +99,69 @@ app.get('/profile', (req, res) => {
 
   app.get('/groups', (req, res) => {
     const isLoggedIn = req.session.user ? true : false;
-    res.render('pages/groups', { isLoggedIn });
+
+
+    const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
+    let get_group_name_q = `SELECT group_name FROM groups WHERE group_id =`;
+    let get_user_names_q = `SELECT username FROM users WHERE user_id = `;
+    let get_user_ids_q = `SELECT user_id from user_to_groups WHERE group_id =`;
+
+    db.any(lookup_groups_q, [user.id])
+        // if query execution succeeds
+        // send success message
+        .then(function (data) {
+          console.log("group_ids:")
+          console.log(data);
+          let ids = [];
+          idString = '';
+          for (let i = 0; i < data.length; i++) {
+            console.log(data[i]);
+            ids.push(data[i].group_id);
+          }
+          idString = `ANY('{ ` + ids.toString() + `}')`;
+          get_group_name_q = get_group_name_q + idString;
+          db.any(get_group_name_q)
+          // if query execution succeeds
+          // send success message
+          .then(function (data) {
+            console.log("group_names:")
+            console.log(data);
+            res.render('pages/groups', { isLoggedIn, data });
+            user.groups = data;
+          })
+          // if query execution fails
+          // send error message
+          .catch(function (err) {
+            return console.log(err);
+          });
+          get_user_ids_q = get_user_ids_q + idString;
+          db.any(get_user_ids_q)
+          // if query execution succeeds
+          // send success message
+          .then(function (data) {
+            console.log("user_names:")
+            console.log(data);
+            res.render('pages/groups', { isLoggedIn, data });
+            user.username = data;
+          })
+          // if query execution fails
+          // send error message
+          .catch(function (err) {
+            return console.log(err);
+          });
+
+
+
+        })
+        // if query execution fails
+        // send error message
+        .catch(function (err) {
+          res.render('pages/home', { isLoggedIn, 'message':'there was an error loading your friends' });
+          return console.log(err);
+
+        });
+   
+
   });
 
   app.get('/friends', (req, res) => {
@@ -377,53 +439,34 @@ app.get('/welcome', (req, res) => {
 });
 
 app.post('/createGroup', async (req, res) => {
-  console.log(req.body);
-  if (req.session){
-  let search_user_q = `SELECT * FROM users WHERE username = $1;`
-  let create_group_q = `INSERT INTO groups (group_name) VALUES ($1) RETURNING group_id;`
-  let users_to_groups_q = `INSERT INTO users_to_groups (user_id, group_id) VALUES ($1, $2) RETURNING user_id, group_id;`
-
-  const {username, group_name} = req.body;
-  var userResult; 
-  var groupResult;
-
-  if(req.body.username) {
-    db.task('get-everything', task => {
-      return task.batch([task.any(search_user_q, [username]), task.any(create_group_q, [group_name])]);
+  const b = req.body;
+  console.log(b);
+  // res.send("Received!");
+ 
+  const insertQuery = 'INSERT INTO GROUPS (group_name, payment_day, payment_time) VALUES ($1, $2, $3) returning *;'
+ 
+  try{
+    const result = await db.one(insertQuery, [req.body.event_name, req.body.event_weekday, req.body.event_time]);
+    console.log("Inserted into db successfully : ", result);
+    var group_id = result.group_id;
+ 
+    let strArray = req.body.event_attendees.split(', ');
+    console.log("Assumed usernames = ", strArray)
+ 
+    strArray.forEach(async inputUsername => {
+      var user_id = await db.one('SELECT user_id FROM users WHERE username = $1', [inputUsername]);
+      var result = await db.none('INSERT INTO users_to_groups (user_id, group_id) values ($1, $2)', [user_id.user_id, group_id])
     })
-
-    .then(function (data) {
-      userResult = data[0][0].user_id;
-      groupResult = data[1][0].group_id;
-      console.log(userResult);
-      console.log(groupResult);
-      db.any(users_to_groups_q, [userResult, groupResult])
-      .then(mappingData => {
-        return {data, mappingData};
-      })
-      .then((finalResult) => {
-        res.status(201).json({
-          status: 'success',
-          data: finalResult,
-          message: 'data added successfully',
-      });
-    })
-      .catch(function (err) {
-        return console.log(err);
-      });
-    });
-
-  } else {
-    app.use((req, res) => {
-      res.status(404).send('User not found');
-    });
+ 
+    res.redirect("/groups");
   }
-}
-else {
-  res.redirect('/login');
-}
-
-});
+ 
+  catch (error) {
+    console.log("ERROR!");
+    console.log(error)
+    res.redirect("/groups");
+  }
+ });
 
 app.post('/createPayment', async (req, res) => {
   if (req.session){

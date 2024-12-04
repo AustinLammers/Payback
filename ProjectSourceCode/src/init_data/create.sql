@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS groups (
   group_name VARCHAR(100),
   payee INTEGER NOT NULL, 
   FOREIGN KEY (payee) REFERENCES users (user_id) ON DELETE CASCADE
+  payment_day VARCHAR(100),
+  payment_time VARCHAR(100)
 );
 
 CREATE TABLE IF NOT EXISTS users_to_groups (
