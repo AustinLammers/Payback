@@ -87,6 +87,20 @@
                />
              </div>
              <div class="form-group">
+               <label for="event_name">Payment Amount</label>
+               <input
+                 type="text"
+                 id="amount"
+                 class="form-control"
+                 name="amount"
+                 placeholder="0.00" 
+                  min="0" 
+                   step="1.00"
+                   onchange="this.value = parseFloat(this.value).toFixed(2)"
+                 required
+               />
+             </div>
+             <div class="form-group">
                <label for="event_attendees">Add Users</label>
                <input
                  type="text"

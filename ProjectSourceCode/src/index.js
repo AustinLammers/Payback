@@ -191,7 +191,7 @@ app.get("/payment", (req, res) => {
 
   const lookup_friends_q = `SELECT friend_id FROM friends WHERE user_id=$1`;
   let get_friend_name_q = `SELECT user_id, username FROM users WHERE user_id=`;
-  let get_group_name_q = `SELECT (group_id, group_name) FROM groups WHERE group_id=`;
+  let get_group_name_q = `SELECT (group_id, group_name, amount) FROM groups WHERE group_id=`;
   const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
   var groups = [];
   var friends = [];
@@ -239,7 +239,7 @@ app.get("/payment", (req, res) => {
                   for (let i = 0; i < data.length; i++) {
                     const length = data[i].row.length
                     str = data[i].row.substring(1,length - 1).split(",");
-                    str = {'group_id': +str[0], 'group_name': str[1]};
+                    str = {'group_id': +str[0], 'group_name': str[1], 'amount': +str[2]};
                     groups.push(str);
                   }
                   user.groups = groups;
@@ -414,7 +414,7 @@ app.post("/createGroup", async (req, res) => {
   // res.send("Received!");
 
   const insertQuery =
-    "INSERT INTO groups (group_name, payment_day, payment_time, payee) VALUES ($1, $2, $3, $4) returning *;";
+    "INSERT INTO groups (group_name, payment_day, payment_time, payee, amount) VALUES ($1, $2, $3, $4, $5) returning *;";
 
   try {
     const result = await db.one(insertQuery, [
@@ -422,6 +422,7 @@ app.post("/createGroup", async (req, res) => {
       req.body.event_weekday,
       req.body.event_time,
       user.id,
+      req.body.amount
     ]);
     console.log("Inserted into db successfully : ", result);
     var group_id = result.group_id;
@@ -446,9 +447,11 @@ app.post("/createPayment", async (req, res) => {
   const isLoggedIn = req.session.user ? true : false;
   if (req.session) {
     let get_group_payee_user_q =
-      "SELECT payee FROM groups WHERE group_id=$1;";
+      "SELECT * FROM groups WHERE group_id=$1;";
     let add_transaction_q = `INSERT INTO expenses (payer, payee, amount) VALUES ($1, $2, $3) RETURNING *;`;
     const add_transaction_to_group = `INSERT INTO expenses_to_groups (trans_id, group_id) VALUES ($1, $2) RETURNING *;`;
+    const update_group_balance = `UPDATE groups SET amount=$1 WHERE group_id=$2;`;
+    var current_bal = 0;
     var payer_id = -1;
     var payee_id = -1;
     console.log(req.body);
@@ -485,18 +488,33 @@ app.post("/createPayment", async (req, res) => {
           // send success message
           .then(function (data) {
             var payee_user = data[0].payee;
+            current_bal = data[0].amount;
             db.any(add_transaction_q, [payer_id, payee_user, req.body.amount])
               // if query execution succeeds
               // send success message
               
               .then(function (data) {
                 console.log("insert: ",data);
+                var paid_amount = data[0].amount;
                   
                 db.any(add_transaction_to_group, [data[0].trans_id, payee_id])
                   // if query execution succeeds
                   // send success message
                   .then(function (data) {
+                    
+                    db.any(update_group_balance, [current_bal - paid_amount, payee_id])
+                  // if query execution succeeds
+                  // send success message
+                  .then(function (data) {
+                    
                     res.redirect('/payment');
+                   
+                  })
+                  // if query execution fails
+                  // send error message
+                  .catch(function (err) {
+                    return console.log(err);
+                  });
                    
                   })
                   // if query execution fails
@@ -532,33 +550,6 @@ app.post("/createPayment", async (req, res) => {
   }
 });
 
-app.post("/createTransaction", async (req, res) => {
-  if (req.session) {
-    let find_user_q = "SELECT user_id FROM users WHERE username=$1;";
-    let add_transaction_q = `INSERT INTO transactions (amount, payee) VALUES ($1, $2) RETURNING *;`;
-    var payer_ids = [];
-    var payee_id = -1;
-    if (user.id) {
-      payee_id = user.id;
-      db.one(find_user_q, [req.body.payee_username])
-
-        .then(function (data) {
-          payee_id = data.user_id;
-        })
-        .catch(function (err) {
-          res.render("pages/payment", {
-            message: "There was an error finding this user.",
-          });
-          return console.log(err);
-        });
-    } else {
-      res.render("pages/friends", {
-        message:
-          "There was an error processing this request. Please check the entered usernames and try again.",
-      });
-    }
-  }
-});
 
 // *****************************************************
 // <!-- Section 5 : Start Server-->
