@@ -104,7 +104,7 @@ app.get('/profile', (req, res) => {
     const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
     let get_group_name_q = `SELECT group_name FROM groups WHERE group_id =`;
     let get_user_names_q = `SELECT username FROM users WHERE user_id = `;
-    let get_user_ids_q = `SELECT user_id from user_to_groups WHERE group_id =`;
+    let get_user_ids_q = `SELECT user_id from users_to_groups WHERE group_id =`;
 
     db.any(lookup_groups_q, [user.id])
         // if query execution succeeds
@@ -126,15 +126,8 @@ app.get('/profile', (req, res) => {
           .then(function (data) {
             console.log("group_names:")
             console.log(data);
-            res.render('pages/groups', { isLoggedIn, data });
             user.groups = data;
-          })
-          // if query execution fails
-          // send error message
-          .catch(function (err) {
-            return console.log(err);
-          });
-          get_user_ids_q = get_user_ids_q + idString;
+            get_user_ids_q = get_user_ids_q + idString;
           db.any(get_user_ids_q)
           // if query execution succeeds
           // send success message
@@ -149,6 +142,13 @@ app.get('/profile', (req, res) => {
           .catch(function (err) {
             return console.log(err);
           });
+          })
+          // if query execution fails
+          // send error message
+          .catch(function (err) {
+            return console.log(err);
+          });
+          
 
 
 
@@ -443,10 +443,10 @@ app.post('/createGroup', async (req, res) => {
   console.log(b);
   // res.send("Received!");
  
-  const insertQuery = 'INSERT INTO GROUPS (group_name, payment_day, payment_time) VALUES ($1, $2, $3) returning *;'
+  const insertQuery = 'INSERT INTO groups (group_name, payment_day, payment_time, payee) VALUES ($1, $2, $3, $4) returning *;'
  
   try{
-    const result = await db.one(insertQuery, [req.body.event_name, req.body.event_weekday, req.body.event_time]);
+    const result = await db.one(insertQuery, [req.body.event_name, req.body.event_weekday, req.body.event_time, user.id]);
     console.log("Inserted into db successfully : ", result);
     var group_id = result.group_id;
  
