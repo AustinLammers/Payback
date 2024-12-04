@@ -18,7 +18,6 @@
                    onchange="this.value = parseFloat(this.value).toFixed(2)"
                    required>
           </div>
-          <small class="text-muted d-block text-center mt-1">Use arrows to adjust by $1.00</small>
         </div>
 
         <div class="recipients-section mb-4">
@@ -34,7 +33,7 @@
             {{#each groups}}
             <div class="list-group-item d-flex align-items-center">
               <div class="form-check">
-                <input class="form-check-input me-2" type="radio" name="recipient" value="g_{{group_id}}">
+                <input class="form-check-input me-2" type="radio" name="recipient" value="g_{{group_id}}" required>
               </div>
               <div class="d-flex align-items-center flex-grow-1">
                 <div>
@@ -108,6 +107,8 @@
     </div>
   </div>
 </div>
+
+{{message}}
 
 <style>
 .payment-card {

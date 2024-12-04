@@ -97,63 +97,49 @@ app.get("/profile", (req, res) => {
 app.get("/groups", (req, res) => {
   const isLoggedIn = req.session.user ? true : false;
 
+  let get_group_name_q = `SELECT (group_id, group_name) FROM groups WHERE group_id=`;
   const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
-  let get_group_name_q = `SELECT group_name FROM groups WHERE group_id =`;
-  let get_user_names_q = `SELECT username FROM users WHERE user_id = `;
-  let get_user_ids_q = `SELECT user_id from users_to_groups WHERE group_id =`;
+
+  groups = [];
 
   db.any(lookup_groups_q, [user.id])
-    // if query execution succeeds
-    // send success message
-    .then(function (data) {
-      console.log("group_ids:");
-      console.log(data);
-      let ids = [];
-      idString = "";
-      for (let i = 0; i < data.length; i++) {
-        console.log(data[i]);
-        ids.push(data[i].group_id);
-      }
-      idString = `ANY('{ ` + ids.toString() + `}')`;
-      get_group_name_q = get_group_name_q + idString;
-      db.any(get_group_name_q)
-        // if query execution succeeds
-        // send success message
-        .then(function (data) {
-          console.log("group_names:");
-          console.log(data);
-          user.groups = data;
-          get_user_ids_q = get_user_ids_q + idString;
-          db.any(get_user_ids_q)
             // if query execution succeeds
             // send success message
             .then(function (data) {
-              console.log("user_names:");
-              console.log(data);
-              res.render("pages/groups", { isLoggedIn, data });
-              user.username = data;
+              console.log("Active Groups: ", data);
+              let gids = [];
+              idString = "";
+              for (let i = 0; i < data.length; i++) {
+                console.log(data[i]);
+                gids.push(data[i].group_id);
+              }
+              gidString = `ANY('{ ` + gids.toString() + `}')`;
+              get_group_name_q = get_group_name_q + gidString;
+              db.any(get_group_name_q)
+                // if query execution succeeds
+                // send success message
+                .then(function (data) {
+                  
+                  for (let i = 0; i < data.length; i++) {
+                    const length = data[i].row.length
+                    str = data[i].row.substring(1,length - 1).split(",");
+                    str = {'group_id': +str[0], 'group_name': str[1]};
+                    groups.push(str);
+                  }
+                  user.groups = groups;
+                  res.render("pages/groups", { isLoggedIn, groups });
+                })
+                // if query execution fails
+                // send error message
+                .catch(function (err) {
+                  return console.log(err);
+                });
             })
             // if query execution fails
             // send error message
             .catch(function (err) {
               return console.log(err);
             });
-        })
-        // if query execution fails
-        // send error message
-        .catch(function (err) {
-          return console.log(err);
-        });
-    })
-    // if query execution fails
-    // send error message
-    .catch(function (err) {
-      res.render("pages/home", {
-        isLoggedIn,
-        message: "there was an error loading your friends",
-      });
-      return console.log(err);
-    });
 });
 
 app.get("/friends", (req, res) => {
@@ -234,13 +220,13 @@ app.get("/payment", (req, res) => {
             // if query execution succeeds
             // send success message
             .then(function (data) {
-              console.log(data);
+              console.log("Active Groups: ", data);
               let gids = [];
               idString = "";
               let names = [];
               for (let i = 0; i < data.length; i++) {
                 console.log(data[i]);
-                ids.push(data[i].group_id);
+                gids.push(data[i].group_id);
               }
               gidString = `ANY('{ ` + gids.toString() + `}')`;
               get_group_name_q = get_group_name_q + gidString;
@@ -248,8 +234,16 @@ app.get("/payment", (req, res) => {
                 // if query execution succeeds
                 // send success message
                 .then(function (data) {
-                  groups = data;
-                  user.groups = data;
+                  console.log("Users group names", data);
+                  
+                  for (let i = 0; i < data.length; i++) {
+                    const length = data[i].row.length
+                    str = data[i].row.substring(1,length - 1).split(",");
+                    str = {'group_id': +str[0], 'group_name': str[1]};
+                    groups.push(str);
+                  }
+                  user.groups = groups;
+                  console.log("Users group names", groups);
                   res.render("pages/payment", { isLoggedIn, friends, groups });
                 })
                 // if query execution fails
@@ -413,6 +407,8 @@ app.get("/welcome", (req, res) => {
 });
 
 app.post("/createGroup", async (req, res) => {
+  const isLoggedIn = req.session.user ? true : false;
+  
   const b = req.body;
   console.log(b);
   // res.send("Received!");
@@ -434,14 +430,8 @@ app.post("/createGroup", async (req, res) => {
     console.log("Assumed usernames = ", strArray);
 
     strArray.forEach(async (inputUsername) => {
-      var user_id = await db.one(
-        "SELECT user_id FROM users WHERE username = $1",
-        [inputUsername]
-      );
-      var result = await db.none(
-        "INSERT INTO users_to_groups (user_id, group_id) values ($1, $2)",
-        [user_id.user_id, group_id]
-      );
+      var user_id = await db.one("SELECT user_id FROM users WHERE username = $1", [inputUsername]);
+      var result = await db.none("INSERT INTO users_to_groups (user_id, group_id) values ($1, $2)", [user_id.user_id, group_id]);
     });
 
     res.redirect("/groups");
@@ -453,9 +443,10 @@ app.post("/createGroup", async (req, res) => {
 });
 
 app.post("/createPayment", async (req, res) => {
+  const isLoggedIn = req.session.user ? true : false;
   if (req.session) {
     let get_group_payee_user_q =
-      "SELECT payee_id FROM groups WHERE group_id=$1;";
+      "SELECT payee FROM groups WHERE group_id=$1;";
     let add_transaction_q = `INSERT INTO expenses (payer, payee, amount) VALUES ($1, $2, $3) RETURNING *;`;
     const add_transaction_to_group = `INSERT INTO expenses_to_groups (trans_id, group_id) VALUES ($1, $2) RETURNING *;`;
     var payer_id = -1;
@@ -466,6 +457,8 @@ app.post("/createPayment", async (req, res) => {
       paymentTag = req.body.recipient.split("_");
       payee_id = +paymentTag[1];
       paymentType = paymentTag[0];
+      groups = user.groups;
+      friends = user.friends;
 
       if (paymentType == "f") {
         // if we are paying to a friend
@@ -474,14 +467,14 @@ app.post("/createPayment", async (req, res) => {
           // send success message
           .then(function (data) {
             console.log(data);
-            res.render("pages/payment", { message: "Transaction Sent!" });
+            res.redirect('/payment');
           })
           // if query execution fails
           // send error message
           .catch(function (err) {
             res.render("pages/payment", {
               message:
-                "There was an error processing this request. Please try again.",
+                "There was an error processing this request. Please try again.", isLoggedIn, friends, groups
             });
             return console.log(err);
           });
@@ -491,18 +484,20 @@ app.post("/createPayment", async (req, res) => {
           // if query execution succeeds
           // send success message
           .then(function (data) {
-            var payee_user = data.payee_id;
+            var payee_user = data[0].payee;
             db.any(add_transaction_q, [payer_id, payee_user, req.body.amount])
               // if query execution succeeds
               // send success message
+              
               .then(function (data) {
-                db.any(add_transaction_to_group, [data.trans_id, payee_id])
+                console.log("insert: ",data);
+                  
+                db.any(add_transaction_to_group, [data[0].trans_id, payee_id])
                   // if query execution succeeds
                   // send success message
                   .then(function (data) {
-                    res.render("pages/payment", {
-                      message: "Transaction Sent!",
-                    });
+                    res.redirect('/payment');
+                   
                   })
                   // if query execution fails
                   // send error message
@@ -515,7 +510,7 @@ app.post("/createPayment", async (req, res) => {
               .catch(function (err) {
                 res.render("pages/payment", {
                   message:
-                    "There was an error processing this request. Please try again.",
+                    "There was an error processing this request. Please try again.", isLoggedIn, friends, groups
                 });
                 return console.log(err);
               });
@@ -525,17 +520,14 @@ app.post("/createPayment", async (req, res) => {
           .catch(function (err) {
             res.render("pages/payment", {
               message:
-                "There was an error processing this request. Please try again.",
+                "There was an error processing this request. Please try again.", isLoggedIn, friends, groups
             });
             return console.log(err);
           });
       }
     } else {
       // If there is no saved user_id, we cant perform the operation
-      res.render("pages/payment", {
-        message:
-          "There was an error processing this request. Please try again.",
-      });
+      res.redirect('/login');
     }
   }
 });
