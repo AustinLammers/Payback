@@ -4,21 +4,15 @@
       <!-- Profile Section -->
       <div class="profile-card bg-white rounded-lg shadow-sm p-4 mb-4">
         <div class="text-center">
-          <img src="../resources/img/payback_icon.png" id="self-image" width="500px" class="img-fluid"> <!--NOTE TO SELF, MAKE SURE TO ADD ICON LATER IN PRCOESS-->
-          <h3 class="mb-2">Username</h3>
+          <div>
+            <img src="../../img/user_icon.png" id="self-image" width="500px" class="img-fluid"> <!--NOTE TO SELF, MAKE SURE TO ADD ICON LATER IN PRCOESS-->
+          </div>
+          <h3 class="mb-2">{{username}}</h3>
           <p class="text-muted">Member since 11/5/2024</p>
           <div class="stats d-flex justify-content-around mt-3">
             <div class="stat-item">
-              <h6>$0.00</h6>
-              <small class="text-muted">Loans</small>
-            </div>
-            <div class="stat-item">
-              <h6>$35.00</h6>
-              <small class="text-muted">Lent</small>
-            </div>
-            <div class="stat-item">
-              <h6>4.5</h6>
-              <small class="text-muted">Rating</small>
+              <h4>${{balance}}</h4>
+              <small class="text-muted">Account Balance</small>
             </div>
           </div>
         </div>
@@ -28,7 +22,7 @@
       <div class="quick-actions bg-white rounded-lg shadow-sm p-4">
         <h5 class="mb-3">Quick Actions</h5>
         <div class="d-grid gap-2">
-          <button class="btn btn-primary">Create New Loan</button>
+          <button onclick="location.href = '/payment';" class="btn btn-primary">Create New Loan</button>
           <button class="btn btn-outline-secondary">View History</button>
           <button class="btn btn-outline-secondary">Settings</button>
         </div>
@@ -39,18 +33,59 @@
       <!-- Active Loans Section -->
       <div class="loans-section bg-white rounded-lg shadow-sm p-4 mb-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-          <h4 class="mb-0">Active Loans</h4>
+          <h4 class="mb-0">Incoming Payments</h4>
           <a href="#" class="text-decoration-none">View All</a>
         </div>
 
+        {{#each incoming}}
         <div class="loan-card p-3 mb-3 border rounded">
-          <div class="d-flex justify-content-between align-items-center">
+           
+            <div class="d-flex justify-content-between align-items-center"></div>
             <div>
-              <h5 class="mb-1">Loan to Jeff</h5>
-              <p class="text-muted mb-0">Amount: $35.00 | Due: 11/15/2024</p>
+              <h5 class="mb-1">{{username}}</h5>
+              <p class="text-muted mb-0">Amount: ${{amount}}</p>
             </div>
+            </div>
+            
+        {{else}}
+
+        <div class="loan-card p-3 mb-3 border rounded">
+           
+            <div class="d-flex justify-content-between align-items-center"></div>
+            <div>
+              <h5> You have not recieved any payments!</h5>
+            </div>
+            </div>
+        
+        
+        {{/each}}
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="mb-0">Outgoing Payments</h4>
+          <a href="#" class="text-decoration-none">View All</a>
+        </div>
           
-          </div>
+        {{#each outgoing}}
+        <div class="loan-card p-3 mb-3 border rounded">
+           
+            <div class="d-flex justify-content-between align-items-center"></div>
+            <div>
+              <h5 class="mb-1">{{username}}</h5>
+              <p class="text-muted mb-0">Amount: -${{amount}}</p>
+            </div>
+            </div>
+        {{else}}
+
+        <div class="loan-card p-3 mb-3 border rounded">
+           
+            <div class="d-flex justify-content-between align-items-center"></div>
+            <div>
+              <h5> You have not sent any payments!</h5>
+            </div>
+            </div>
+      
+        
+        {{/each}}
         </div>
       </div>
 
