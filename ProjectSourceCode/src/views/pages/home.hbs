@@ -30,13 +30,13 @@
                             <h6 class="mb-1">{{group_name}}</h6>
                         </td>
                         <td>
-                            <h6 class="mb-1">${{amount.toFixed(2)}}</h6> <!-- Display the amount -->
+                            <h6 class="mb-1">${{amount}}</h6> <!-- Amount is already formatted in the server -->
                         </td>
                     </tr>
                     {{else}}
                     <tr>
                         <td colspan="3" class="text-center">
-                            <h6 class="mb-1">As far as we can tell, you are a part of no groups, if you wish to make one head to <a href="/groups">here!</a></h6>
+                            <h6 class="mb-1">As far as we can tell, you are a part of no groups. If you wish to make one, head to <a href="/groups">here!</a></h6>
                         </td>
                     </tr>
                     {{/each}}

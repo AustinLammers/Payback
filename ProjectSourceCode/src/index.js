@@ -112,7 +112,7 @@ app.get("/home", async (req, res) => {
       groups = groupDetails.map(group => ({
         group_id: group.group_id,
         group_name: group.group_name,
-        amount: group.amount
+        amount: parseFloat(group.amount).toFixed(2) // Format amount on the server
       }));
 
       // Sort the groups by amount in ascending order
