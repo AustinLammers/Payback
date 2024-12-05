@@ -119,7 +119,7 @@ app.get("/home", (req, res) => {
 app.get("/groups", (req, res) => {
   const isLoggedIn = req.session.user ? true : false;
 
-  let get_group_name_q = `SELECT (group_id, group_name) FROM groups WHERE group_id=`;
+  let get_group_name_q = `SELECT (group_id, group_name, amount) FROM groups WHERE group_id=`;
   const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
 
   groups = [];
@@ -145,7 +145,7 @@ app.get("/groups", (req, res) => {
                   for (let i = 0; i < data.length; i++) {
                     const length = data[i].row.length
                     str = data[i].row.substring(1,length - 1).split(",");
-                    str = {'group_id': +str[0], 'group_name': str[1]};
+                    str = {'group_id': +str[0], 'group_name': str[1], 'amount': +str[2]};
                     groups.push(str);
                   }
                   user.groups = groups;
