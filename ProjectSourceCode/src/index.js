@@ -80,11 +80,66 @@ app.get("/register", (req, res) => {
   res.render("pages/register");
 });
 
-app.get("/home", (req, res) => {
+app.get("/home", async (req, res) => {
   const isLoggedIn = req.session.user ? true : false;
-  if (!isLoggedIn) res.render("pages/login", { isLoggedIn });
-  res.render("pages/home", { isLoggedIn });
-  });
+  
+  if (!isLoggedIn) {
+    return res.render("pages/login", { isLoggedIn });
+  }
+
+  let groups = [];
+  let friends = [];
+
+  const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
+  const lookup_friends_q = `SELECT friend_id FROM friends WHERE user_id=$1`;
+  
+  try {
+    const groupData = await db.any(lookup_groups_q, [req.session.user_id]);
+
+    let gids = groupData.map(group => group.group_id);
+    if (gids.length > 0) {
+      let gidString = `ANY('{ ${gids.join(",")} }')`;
+      const get_group_name_q = `SELECT group_id, group_name, amount FROM groups WHERE group_id ${gidString}`;
+      
+      const groupDetails = await db.any(get_group_name_q);
+      groups = groupDetails.map(group => ({
+        group_id: group.group_id,
+        group_name: group.group_name,
+        amount: group.amount
+      }));
+
+      groups.sort((a, b) => a.amount - b.amount);
+    }
+
+    const friendData = await db.any(lookup_friends_q, [req.session.user_id]);
+    
+    let friendIds = friendData.map(friend => friend.friend_id);
+    if (friendIds.length > 0) {
+      let friendIdsString = `ANY('{ ${friendIds.join(",")} }')`;
+      const get_friend_name_q = `SELECT user_id, username FROM users WHERE user_id ${friendIdsString}`;
+
+      const friendDetails = await db.any(get_friend_name_q);
+      friends = friendDetails.map(friend => ({
+        user_id: friend.user_id,
+        username: friend.username
+      }));
+    }
+
+    res.render("pages/home", { 
+      isLoggedIn, 
+      groups, 
+      friends 
+    });
+
+  } catch (err) {
+    console.log("Error fetching groups or friends:", err);
+    res.render("pages/home", { 
+      isLoggedIn,
+      message: "There was an error loading your groups or friends." 
+    });
+  }
+});
+
   
   app.get('/profile', async (req, res) => {
     const isLoggedIn = req.session.user ? true : false;

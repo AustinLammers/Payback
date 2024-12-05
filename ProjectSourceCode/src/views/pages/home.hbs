@@ -1,46 +1,47 @@
-    <div class="container mt-4">
-        <div class="row">
-          <div class="col-md-4">
-            <img src="https://raw.githubusercontent.com/AustinLammers/Payback/refs/heads/main/ProjectSourceCode/src/resources/img/Loan_Shark-512.webp" alt="Payback Icon"> <!--NOTE TO SELF, MAKE SURE TO ADD ICON LATER IN PRCOESS-->
-          </div>
-          <div class="col-md-8" id="self-desc">
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="https://raw.githubusercontent.com/AustinLammers/Payback/refs/heads/main/ProjectSourceCode/src/resources/img/Loan_Shark-512.webp" alt="Payback Icon">
+        </div>
+        <div class="col-md-8" id="self-desc">
             <h2>Payback</h2>
             <p>Welcome to Payback, a fun new way of paying your dues! 🦈🦈🦈</p>
-          </div>
-          <div class="container mt-5">
-            <div class="container mt-5">
-            <h2>Leaderboard</h2>
+        </div>
+        <div class="container mt-5">
+            <h2>Overview</h2>
 
             <table class="table mt-3">
-  <thead>
-    <tr>
-      <th scope="col"></th> <!-- Empty header for radio buttons -->
-      <th scope="col">Group Name</th>
-    </tr>
-  </thead>
-  <tbody>
-    {{#each groups}}
-    <tr>
-      <td>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="recipient" value="g_{{group_id}}">
+                <thead>
+                    <tr>
+                        <th scope="col"></th> <!-- Empty header for radio buttons -->
+                        <th scope="col">Group Name</th>
+                        <th scope="col">Amount</th> <!-- Added amount column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each groups}}
+                    <tr>
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="recipient" value="g_{{group_id}}">
+                            </div>
+                        </td>
+                        <td>
+                            <h6 class="mb-1">{{group_name}}</h6>
+                        </td>
+                        <td>
+                            <h6 class="mb-1">${{amount.toFixed(2)}}</h6> <!-- Display the amount -->
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="3" class="text-center">
+                            <h6 class="mb-1">As far as we can tell, you are a part of no groups, if you wish to make one head to <a href="/groups">here!</a></h6>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
         </div>
-      </td>
-      <td>
-        <h6 class="mb-1">{{group_name}}</h6>
-      </td>
-    </tr>
-    {{else}}
-    <tr>
-      <td colspan="2" class="text-center">
-        <h6 class="mb-1">As far as we can tell, you are a part of no groups, if you wish to make one head to <a href="/groups"> here! </a></h6>
-      </td>
-    </tr>
-    {{/each}}
-  </tbody>
-</table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    </div>
+</div>
