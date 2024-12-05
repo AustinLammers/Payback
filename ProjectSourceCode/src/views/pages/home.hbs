@@ -15,7 +15,7 @@
                     <tr>
                         <th scope="col"></th> <!-- Empty header for radio buttons -->
                         <th scope="col">Group Name</th>
-                        <th scope="col">Amount</th> <!-- Added amount column -->
+                        <th scope="col">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -23,25 +23,71 @@
                     <tr>
                         <td>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="recipient" value="g_{{group_id}}">
+                                <input class="form-check-input" type="radio" name="recipient" value="g_{{group_id}}" onchange="loadUsersInGroup({{group_id}})">
                             </div>
                         </td>
                         <td>
                             <h6 class="mb-1">{{group_name}}</h6>
                         </td>
                         <td>
-                            <h6 class="mb-1">${{amount}}</h6> <!-- Amount is already formatted in the server -->
+                            <h6 class="mb-1">${{amount}}</h6>
                         </td>
                     </tr>
                     {{else}}
                     <tr>
                         <td colspan="3" class="text-center">
-                            <h6 class="mb-1">As far as we can tell, you are a part of no groups. If you wish to make one, head to <a href="/groups">here!</a></h6>
+                            <h6 class="mb-1">You are not a part of any groups. If you wish to create one, head to <a href="/groups">here!</a></h6>
                         </td>
                     </tr>
                     {{/each}}
                 </tbody>
             </table>
+
+            <!-- Table for displaying users in the selected group -->
+            <div id="group-users-table" style="display: none;">
+                <h3>Users in this group</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Username</th>
+                        </tr>
+                    </thead>
+                    <tbody id="group-users-body">
+                        <!-- Users will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Function to load users in the selected group
+    function loadUsersInGroup(groupId) {
+        // Hide the table of users until we load them
+        document.getElementById("group-users-table").style.display = "none";
+        
+        // Fetch users for the selected group from the server
+        fetch(`/group/${groupId}/users`)
+            .then(response => response.json())
+            .then(data => {
+                // Show the users table
+                document.getElementById("group-users-table").style.display = "block";
+                
+                const groupUsersBody = document.getElementById("group-users-body");
+                groupUsersBody.innerHTML = '';  // Clear any previous users
+                
+                // Dynamically create rows for each user in the group
+                data.users.forEach(user => {
+                    const row = document.createElement("tr");
+                    const cell = document.createElement("td");
+                    cell.textContent = user.username;
+                    row.appendChild(cell);
+                    groupUsersBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.log("Error loading group users:", error);
+            });
+    }
+</script>
