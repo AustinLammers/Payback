@@ -77,34 +77,86 @@ app.get("/", (req, res) => {
 
 app.get("/login", (req, res) => {
   const isLoggedIn = req.session.user ? true : false;
+
+  if (isLoggedIn) res.render("pages/home", { isLoggedIn });
   res.render("pages/login", { isLoggedIn });
 });
 
 app.get("/register", (req, res) => {
+  const isLoggedIn = req.session.user ? true : false;
+  if (isLoggedIn) res.render("pages/home", { isLoggedIn });
   res.render("pages/register");
 });
 
 app.get("/home", (req, res) => {
   const isLoggedIn = req.session.user ? true : false;
+  if (!isLoggedIn) res.render("pages/login", { isLoggedIn });
   res.render("pages/home", { isLoggedIn });
   });
   
-  app.post('/profile', async (req, res) => {
-        const get_all_paid_q = `SELECT * FROM expense WHERE payer=$1`;
-        const get_all_owed_q = `SELECT * FROM expense WHERE payee=$1`;
-
+  app.get('/profile', async (req, res) => {
+    const isLoggedIn = req.session.user ? true : false;
+    if (!isLoggedIn) res.render("pages/login", { isLoggedIn });
+        const get_all_paid_q = `SELECT * FROM expenses WHERE payer=$1 ORDER BY trans_id DESC LIMIT 5`;
+        const get_all_loaned_q = `SELECT * FROM expenses WHERE payee=$1 ORDER BY trans_id DESC LIMIT 5`;
+        var outgoing = [];
+        var incoming = [];
         // Check if the user is logged in
         if (!req.session.user || !req.session.user.id) {
             console.error('User not logged in or session missing user id');
             return res.status(401).send({ error: 'Unauthorized: Please log in' });
         }
-        db.any(get_friend_name_q)
+        db.any(get_all_loaned_q, [user.id])
         // if query execution succeeds
         // send success message
         .then(function (data) {
-          console.log(data);
-          res.render("pages/friends", { isLoggedIn, data });
-          user.friends = data;
+          incoming = data;
+          var balance = 0;
+          for(let i = 0; i < data.length; i++) {
+            balance += (+data[i].amount);
+            console.log("balance",balance);
+          }
+
+          db.any(get_all_paid_q, [user.id])
+        // if query execution succeeds
+        // send success message
+        .then(async function (data) {
+          outgoing = data;
+          for(let i = 0; i < data.length; i++) {
+
+            balance -= (+data[i].amount);
+            console.log("balance",balance);
+          }
+          let username = user.username;
+          try {
+            let get_user_name_q = `SELECT username FROM users WHERE user_id=$1;`;
+            console.log(outgoing);
+            for (let i=0; i < outgoing.length; i++){
+              const result = await db.one(get_user_name_q, [outgoing[i].payee]);
+              outgoing[i].username = result.username;
+          }
+          console.log(incoming);
+          for (let i=0; i < incoming.length; i++){
+            const result = await db.one(get_user_name_q, [incoming[i].payer]);
+            incoming[i].username = result.username;
+        }
+        
+            
+            res.render('pages/profile_page', {isLoggedIn, outgoing, incoming, balance, username});
+            
+          } catch (error) {
+            console.log("ERROR!");
+            console.log(error);
+          }
+          
+          
+        })
+        // if query execution fails
+        // send error message
+        .catch(function (err) {
+          return console.log(err);
+        });
+          
         })
         // if query execution fails
         // send error message
@@ -118,6 +170,7 @@ app.get("/home", (req, res) => {
 
 app.get("/groups", (req, res) => {
   const isLoggedIn = req.session.user ? true : false;
+  if (!isLoggedIn) res.render("pages/login", { isLoggedIn });
 
   let get_group_name_q = `SELECT (group_id, group_name, amount) FROM groups WHERE group_id=`;
   const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
@@ -166,6 +219,7 @@ app.get("/groups", (req, res) => {
 
 app.get("/friends", (req, res) => {
   const isLoggedIn = req.session.user ? true : false;
+  if (!isLoggedIn) res.render("pages/login", { isLoggedIn });
 
   const lookup_friends_q = `SELECT friend_id FROM friends WHERE user_id=$1`;
   let get_friend_name_q = `SELECT username FROM users WHERE user_id=`;
@@ -210,6 +264,7 @@ app.get("/friends", (req, res) => {
 
 app.get("/payment", (req, res) => {
   const isLoggedIn = req.session.user ? true : false;
+  if (!isLoggedIn) res.render("pages/login", { isLoggedIn });
 
   const lookup_friends_q = `SELECT friend_id FROM friends WHERE user_id=$1`;
   let get_friend_name_q = `SELECT user_id, username FROM users WHERE user_id=`;
