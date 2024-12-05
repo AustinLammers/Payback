@@ -16,14 +16,6 @@ const hbs = handlebars.create({
   partialsDir: __dirname + "/views/partials",
 });
 
-const user = {
-  username: undefined,
-  password: undefined,
-  id: undefined,
-  friends: undefined,
-  groups: undefined,
-};
-
 // database configuration
 const dbConfig = {
   host: process.env.POSTGRES_HOST, // the database server
@@ -102,11 +94,11 @@ app.get("/home", (req, res) => {
         var outgoing = [];
         var incoming = [];
         // Check if the user is logged in
-        if (!req.session.user || !req.session.user.id) {
+        if (!isLoggedIn) {
             console.error('User not logged in or session missing user id');
             return res.status(401).send({ error: 'Unauthorized: Please log in' });
         }
-        db.any(get_all_loaned_q, [user.id])
+        db.any(get_all_loaned_q, [req.session.user_id])
         // if query execution succeeds
         // send success message
         .then(function (data) {
@@ -117,7 +109,7 @@ app.get("/home", (req, res) => {
             console.log("balance",balance);
           }
 
-          db.any(get_all_paid_q, [user.id])
+          db.any(get_all_paid_q, [req.session.user_id])
         // if query execution succeeds
         // send success message
         .then(async function (data) {
@@ -127,7 +119,7 @@ app.get("/home", (req, res) => {
             balance -= (+data[i].amount);
             console.log("balance",balance);
           }
-          let username = user.username;
+          let username = req.session.username;
           try {
             let get_user_name_q = `SELECT username FROM users WHERE user_id=$1;`;
             console.log(outgoing);
@@ -177,7 +169,7 @@ app.get("/groups", (req, res) => {
 
   groups = [];
 
-  db.any(lookup_groups_q, [user.id])
+  db.any(lookup_groups_q, [req.session.user_id])
             // if query execution succeeds
             // send success message
             .then(function (data) {
@@ -201,7 +193,7 @@ app.get("/groups", (req, res) => {
                     str = {'group_id': +str[0], 'group_name': str[1], 'amount': +str[2]};
                     groups.push(str);
                   }
-                  user.groups = groups;
+                  req.session.groups = groups;
                   res.render("pages/groups", { isLoggedIn, groups });
                 })
                 // if query execution fails
@@ -224,7 +216,7 @@ app.get("/friends", (req, res) => {
   const lookup_friends_q = `SELECT friend_id FROM friends WHERE user_id=$1`;
   let get_friend_name_q = `SELECT username FROM users WHERE user_id=`;
 
-  db.any(lookup_friends_q, [user.id])
+  db.any(lookup_friends_q, [req.session.user_id])
     // if query execution succeeds
     // send success message
     .then(function (data) {
@@ -243,7 +235,7 @@ app.get("/friends", (req, res) => {
         .then(function (data) {
           console.log(data);
           res.render("pages/friends", { isLoggedIn, data });
-          user.friends = data;
+          req.session.friends = data;
         })
         // if query execution fails
         // send error message
@@ -273,7 +265,7 @@ app.get("/payment", (req, res) => {
   var groups = [];
   var friends = [];
 
-  db.any(lookup_friends_q, [user.id])
+  db.any(lookup_friends_q, [req.session.user_id])
     // if query execution succeeds
     // send success message
     .then(function (data) {
@@ -292,8 +284,8 @@ app.get("/payment", (req, res) => {
         // send success message
         .then(function (data) {
           friends = data;
-          user.friends = data;
-          db.any(lookup_groups_q, [user.id])
+          req.session.friends = data;
+          db.any(lookup_groups_q, [req.session.user_id])
             // if query execution succeeds
             // send success message
             .then(function (data) {
@@ -319,7 +311,7 @@ app.get("/payment", (req, res) => {
                     str = {'group_id': +str[0], 'group_name': str[1], 'amount': +str[2]};
                     groups.push(str);
                   }
-                  user.groups = groups;
+                  req.session.groups = groups;
                   console.log("Users group names", groups);
                   res.render("pages/payment", { isLoggedIn, friends, groups });
                 })
@@ -380,15 +372,15 @@ app.post("/login", async (req, res) => {
     // if query execution succeeds
     // send success message
     .then(async function (data) {
-      user.username = data[0].username;
-      user.password = data[0].password;
-      user.id = data[0].user_id;
+      req.session.username = data[0].username;
+      req.session.password = data[0].password;
+      req.session.user_id = data[0].user_id;
       //hash the password using bcrypt library
-      const match = await bcrypt.compare(req.body.password, user.password);
+      const match = await bcrypt.compare(req.body.password, req.session.password);
 
       if (match) {
         //save user details in session like in lab 7
-        req.session.user = user;
+        req.session.user = {user : true};
         req.session.save();
         res.redirect("/home");
       } else {
@@ -431,9 +423,9 @@ app.post("/add_friend", (req, res) => {
     let add_friend_q = `INSERT INTO friends (user_id, friend_id) VALUES ($1, $2) RETURNING *;`;
     var friend_id = -1;
     var user_id = -1;
-    let data = user.friends;
-    if (user.id) {
-      user_id = user.id;
+    let data =  req.session.friends;
+    if (req.session.user) {
+      user_id = req.session.user_id;
 
       db.one(find_user_q, [req.body.friend_username])
 
@@ -498,7 +490,7 @@ app.post("/createGroup", async (req, res) => {
       req.body.event_name,
       req.body.event_weekday,
       req.body.event_time,
-      user.id,
+      req.session.user_id,
       req.body.amount
     ]);
     console.log("Inserted into db successfully : ", result);
@@ -532,13 +524,13 @@ app.post("/createPayment", async (req, res) => {
     var payer_id = -1;
     var payee_id = -1;
     console.log(req.body);
-    if (user.id) {
-      payer_id = user.id;
+    if (req.session.user_id) {
+      payer_id = req.session.user_id;
       paymentTag = req.body.recipient.split("_");
       payee_id = +paymentTag[1];
       paymentType = paymentTag[0];
-      groups = user.groups;
-      friends = user.friends;
+      groups = req.session.groups;
+      friends = req.session.friends;
 
       if (paymentType == "f") {
         // if we are paying to a friend
