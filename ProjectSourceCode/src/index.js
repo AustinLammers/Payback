@@ -83,24 +83,31 @@ app.get("/register", (req, res) => {
 app.get("/home", async (req, res) => {
   const isLoggedIn = req.session.user ? true : false;
   
+  // If user is not logged in, show login page
   if (!isLoggedIn) {
     return res.render("pages/login", { isLoggedIn });
   }
 
+  // Initialize arrays to store the groups and friends
   let groups = [];
   let friends = [];
 
+  // Queries to get group and friend information
   const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
   const lookup_friends_q = `SELECT friend_id FROM friends WHERE user_id=$1`;
   
   try {
+    // Fetch groups the user is part of
     const groupData = await db.any(lookup_groups_q, [req.session.user_id]);
 
+    // Extract group IDs from the response and build a string for querying group details
     let gids = groupData.map(group => group.group_id);
     if (gids.length > 0) {
-      let gidString = `ANY('{ ${gids.join(",")} }')`;
-      const get_group_name_q = `SELECT group_id, group_name, amount FROM groups WHERE group_id ${gidString}`;
+      // Use ARRAY[...] syntax to pass the list of IDs as an array for the ANY operator
+      const gidArray = `ARRAY[${gids.join(",")}]`;  // Format the list as an array
+      const get_group_name_q = `SELECT group_id, group_name, amount FROM groups WHERE group_id = ANY(${gidArray})`;
       
+      // Get detailed information about the user's groups
       const groupDetails = await db.any(get_group_name_q);
       groups = groupDetails.map(group => ({
         group_id: group.group_id,
@@ -108,16 +115,20 @@ app.get("/home", async (req, res) => {
         amount: group.amount
       }));
 
+      // Sort the groups by amount in ascending order
       groups.sort((a, b) => a.amount - b.amount);
     }
 
+    // Fetch friends of the user
     const friendData = await db.any(lookup_friends_q, [req.session.user_id]);
     
+    // Extract friend IDs and get their usernames
     let friendIds = friendData.map(friend => friend.friend_id);
     if (friendIds.length > 0) {
-      let friendIdsString = `ANY('{ ${friendIds.join(",")} }')`;
-      const get_friend_name_q = `SELECT user_id, username FROM users WHERE user_id ${friendIdsString}`;
+      const friendIdsArray = `ARRAY[${friendIds.join(",")}]`;  // Format the list as an array
+      const get_friend_name_q = `SELECT user_id, username FROM users WHERE user_id = ANY(${friendIdsArray})`;
 
+      // Get the usernames of the friends
       const friendDetails = await db.any(get_friend_name_q);
       friends = friendDetails.map(friend => ({
         user_id: friend.user_id,
@@ -125,6 +136,7 @@ app.get("/home", async (req, res) => {
       }));
     }
 
+    // Render the home page with the groups and friends data
     res.render("pages/home", { 
       isLoggedIn, 
       groups, 
