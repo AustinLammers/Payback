@@ -25,31 +25,31 @@ Payback is an application that allows for groups people to split bills amongst t
 ## Directory Structure
 PayBack/  
 ├── MilestoneSubmission/  
-│   ├── Kick Start Doc.txt    
-│   ├── Release_Notes.pdf  
-│   ├── User Acceptance Testing Plan.txt  
+│     ├── Kick Start Doc.txt    
+│     ├── Release_Notes.pdf  
+│     ├── User Acceptance Testing Plan.txt  
 ├── ProjectSourceCode/  
-│   ├── src/  
-│   │   ├── init_data/  
-│   │   │   ├── create.sql    
-│   │   │   └── insert.sql    
-│   │   ├── recourses/  
-│   │   │   ├── css/  
-│   │   │       └── style.css  
-│   │   │   └── js/  
-│   │   │       └── group.js    
-│   │   │       └── script.js    
-│   │   └── views/  
-│   │       ├── layouts/    
-│   │       └── pages/  
-│   │       └── partials/  
-│   │   ├── .DS_Store  
-│   │   ├── groups.css  
-│   │   ├── index.js  
-│   ├── test/  
-│   ├── .gitignore  
-│   ├── docker-compose.yaml  
-│   ├── package.json  
+│     ├── src/  
+│     │   ├── init_data/  
+│     │   │   ├── create.sql    
+│     │   │   └── insert.sql    
+│     │   ├── recourses/  
+│     │   │   ├── css/  
+│     │   │       └── style.css  
+│     │   │   └── js/  
+│     │   │       └── group.js    
+│     │   │       └── script.js    
+│     │   └── views/  
+│     │       ├── layouts/    
+│     │       └── pages/  
+│     │       └── partials/  
+│     │   ├── .DS_Store  
+│     │   ├── groups.css  
+│     │   ├── index.js  
+│     ├── test/  
+│     ├── .gitignore  
+│     ├── docker-compose.yaml  
+│     ├── package.json  
 ├── TeamMeetingLogs/  
 ├── README.md  
 ## Running the App
