@@ -51,16 +51,6 @@ PayBack/
 │   ├── docker-compose.yaml  
 │   ├── package.json  
 ├── TeamMeetingLogs/  
-│   ├── components/  
-│   │   ├── Header/  
-│   │   │   ├── Header.js  
-│   │   │   └── Header.css  
-│   │   ├── Footer/  
-│   │   │   ├── Footer.js  
-│   │   │   └── Footer.css  
-│   │   └── ProfilePage/  
-│   │       ├── ProfilePage.js  
-│   │       └── ProfilePage.css  
 ├── README.md  
 ## Running the App
 ### Instructions on how to run the application locally.
