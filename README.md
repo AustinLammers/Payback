@@ -63,7 +63,7 @@ PayBack/
 7.) Enjoy the application 
 ### How to run the tests 
 1.) Follow instructions to run app locally \
-2.) Before step 3, change `command:` to `'npm run testandrun'` \
+2.) Before step 4, change `command:` to `'npm run testandrun'` \
 3.) Run the command `sudo docker compose up` \
 4.) Tests will run automatically before the application starts 
 ## Application Link 
