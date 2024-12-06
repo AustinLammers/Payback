@@ -15,6 +15,53 @@ Payback is an application that allows for groups people to split bills amongst t
 - NodeJS
 - Venmo API
 - Docker
+- PostgreSQL
+- HTML
+- Handlebars
+- Node JS
+- Express
+- Render
+
+## Directory Structure
+PayBack/  
+├── MilestoneSubmission/  
+│   ├── Kick Start Doc.txt    
+│   ├── Release_Notes.pdf  
+│   ├── User Acceptance Testing Plan.txt  
+├── ProjectSourceCode/  
+│   ├── src/  
+│   │   ├── init_data/  
+│   │   │   ├── create.sql    
+│   │   │   └── insert.sql    
+│   │   ├── recourses/  
+│   │   │   ├── css/  
+|   |   |       └── style.css  
+│   │   │   └── js/  
+|   |   |       └── group.js    
+|   |   |       └── script.js    
+│   │   └── views/  
+│   │       ├── layouts/    
+│   │       └── pages/  
+│   │       └── partials/  
+│   │   ├── .DS_Store  
+│   │   ├── groups.css  
+│   │   ├── index.js  
+│   ├── test/  
+│   ├── .gitignore  
+│   ├── docker-compose.yaml  
+│   ├── package.json  
+├── TeamMeetingLogs/  
+│   ├── components/  
+│   │   ├── Header/  
+│   │   │   ├── Header.js  
+│   │   │   └── Header.css  
+│   │   ├── Footer/  
+│   │   │   ├── Footer.js  
+│   │   │   └── Footer.css  
+│   │   └── ProfilePage/  
+│   │       ├── ProfilePage.js  
+│   │       └── ProfilePage.css  
+├── README.md  
 ## Running the App
 ### Instructions on how to run the application locally.
 ### How to run the tests
