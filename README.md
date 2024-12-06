@@ -64,5 +64,18 @@ PayBack/
 ├── README.md  
 ## Running the App
 ### Instructions on how to run the application locally.
-### How to run the tests
-## Application Link
+1.) Clone the repository onto your local machine \
+2.) Navigate to Payback/ProjectSourceCode/ \
+3.) Create `.env` file and create fields `POSTGRES_HOST="db"`, `POSTGRES_USER="<usr>"`, `POSTGRES_PASSWORD="<pswd>"`, `POSTGRES_DB="users_db"`, `SESSION_SECRET="<secrt>"` \
+4.) In console/docker, navigate to Payback/ProjectSourceCode/ \
+5.) Run the command `sudo docker compose up` \
+6.) In your browser, navigate to `localhost:3000/` \
+7.) Enjoy the application 
+### How to run the tests 
+1.) Follow instructions to run app locally \
+2.) Before step 3, change `command:` to `'npm run testandrun'` \
+3.) Run the command `sudo docker compose up` \
+4.) Tests will run automatically before the application starts 
+## Application Link 
+https://payback-p4gt.onrender.com/
+
