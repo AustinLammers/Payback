@@ -25,8 +25,6 @@ const dbConfig = {
   password: process.env.POSTGRES_PASSWORD, // the password of the user account
 };
 
-console.log(dbConfig);
-
 const db = pgp(dbConfig);
 
 // test your database
@@ -68,7 +66,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const isLoggedIn = req.session.user ? true : false;
+  const isLoggedIn = req.session.user ? true : false; // this construct shows up a lot, it checks if the user is logged in
 
   if (isLoggedIn) res.render("pages/home", { isLoggedIn });
   res.render("pages/login", { isLoggedIn });
@@ -93,7 +91,7 @@ app.get("/home", async (req, res) => {
   const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
   const lookup_friends_q = `SELECT friend_id FROM friends WHERE user_id=$1`;
   
-  try {
+  try { // We need to find all the groups a user is a part of
     const groupData = await db.any(lookup_groups_q, [req.session.user_id]);
 
     let gids = groupData.map(group => group.group_id);
@@ -110,21 +108,21 @@ app.get("/home", async (req, res) => {
 
       groups.sort((a, b) => a.amount - b.amount);
     }
-
+      //Grabbing all of the users friends
     const friendData = await db.any(lookup_friends_q, [req.session.user_id]);
     
     let friendIds = friendData.map(friend => friend.friend_id);
     if (friendIds.length > 0) {
       const friendIdsArray = `ARRAY[${friendIds.join(",")}]`; 
       const get_friend_name_q = `SELECT user_id, username FROM users WHERE user_id = ANY(${friendIdsArray})`;
-
+      // We have all the ids, now get the names of the friends
       const friendDetails = await db.any(get_friend_name_q);
       friends = friendDetails.map(friend => ({
         user_id: friend.user_id,
         username: friend.username
       }));
     }
-
+    
     res.render("pages/home", { 
       isLoggedIn, 
       groups, 
@@ -173,29 +171,33 @@ app.get('/group/:groupId/users', async (req, res) => {
             console.error('User not logged in or session missing user id');
             return res.status(401).send({ error: 'Unauthorized: Please log in' });
         }
+        // First, we get all the incoming payments that the user recieved
         db.any(get_all_loaned_q, [req.session.user_id])
         // if query execution succeeds
         // send success message
         .then(function (data) {
+          // Calculate the incoming money the user recieved 
           incoming = data;
           var balance = 0;
           for(let i = 0; i < data.length; i++) {
             balance += (+data[i].amount);
             console.log("balance",balance);
           }
-
+          //then we grab all the outgoing payments the user sent
           db.any(get_all_paid_q, [req.session.user_id])
         // if query execution succeeds
         // send success message
         .then(async function (data) {
           outgoing = data;
           for(let i = 0; i < data.length; i++) {
-
+            //calulate outgoing money user spent
             balance -= (+data[i].amount);
             console.log("balance",balance);
           }
           let username = req.session.username;
           try {
+            // Now that we have all the payments, lets grab the names of the accosiated users to display them on the profile page
+            // We need to get the name of the user who isnt the current user in either case which is different
             let get_user_name_q = `SELECT username FROM users WHERE user_id=$1;`;
             console.log(outgoing);
             for (let i=0; i < outgoing.length; i++){
@@ -208,7 +210,7 @@ app.get('/group/:groupId/users', async (req, res) => {
             incoming[i].username = result.username;
         }
         
-            
+            //send all information to the prifile page for rendering
             res.render('pages/profile_page', {isLoggedIn, outgoing, incoming, balance, username});
             
           } catch (error) {
@@ -243,7 +245,7 @@ app.get("/groups", (req, res) => {
   const lookup_groups_q = `SELECT group_id FROM users_to_groups WHERE user_id=$1`;
 
   groups = [];
-
+  //find all the groups the user is a member of
   db.any(lookup_groups_q, [req.session.user_id])
             // if query execution succeeds
             // send success message
@@ -257,6 +259,7 @@ app.get("/groups", (req, res) => {
               }
               gidString = `ANY('{ ` + gids.toString() + `}')`;
               get_group_name_q = get_group_name_q + gidString;
+              // now that we have the group ids, we need the names to display them
               db.any(get_group_name_q)
                 // if query execution succeeds
                 // send success message
@@ -268,7 +271,9 @@ app.get("/groups", (req, res) => {
                     str = {'group_id': +str[0], 'group_name': str[1], 'amount': +str[2]};
                     groups.push(str);
                   }
+                  // Save the current known groups for later rendering, helps when a group creation fails
                   req.session.groups = groups;
+                  //pass the groups to the groups page for render
                   res.render("pages/groups", { isLoggedIn, groups });
                 })
                 // if query execution fails
@@ -291,6 +296,7 @@ app.get("/friends", (req, res) => {
   const lookup_friends_q = `SELECT friend_id FROM friends WHERE user_id=$1`;
   let get_friend_name_q = `SELECT username FROM users WHERE user_id=`;
 
+  // Find all the users the current user is friends with
   db.any(lookup_friends_q, [req.session.user_id])
     // if query execution succeeds
     // send success message
@@ -304,6 +310,7 @@ app.get("/friends", (req, res) => {
       }
       idString = `ANY('{ ` + ids.toString() + `}')`;
       get_friend_name_q = get_friend_name_q + idString;
+      // get the usernames of all the user ids we just got
       db.any(get_friend_name_q)
         // if query execution succeeds
         // send success message
@@ -340,6 +347,7 @@ app.get("/payment", (req, res) => {
   var groups = [];
   var friends = [];
 
+  //first we need to get the list of friends
   db.any(lookup_friends_q, [req.session.user_id])
     // if query execution succeeds
     // send success message
@@ -349,17 +357,19 @@ app.get("/payment", (req, res) => {
       idString = "";
       let names = [];
       for (let i = 0; i < data.length; i++) {
+        //for each friend found, extract the id and save it for later
         console.log(data[i]);
         ids.push(data[i].friend_id);
       }
-      idString = `ANY('{ ` + ids.toString() + `}')`;
+      idString = `ANY('{ ` + ids.toString() + `}')`; // Create the sql query to match all the user ids we just found
       get_friend_name_q = get_friend_name_q + idString;
-      db.any(get_friend_name_q)
+      db.any(get_friend_name_q) //get the names
         // if query execution succeeds
         // send success message
         .then(function (data) {
           friends = data;
           req.session.friends = data;
+          //now, we need to find the groups
           db.any(lookup_groups_q, [req.session.user_id])
             // if query execution succeeds
             // send success message
@@ -370,10 +380,11 @@ app.get("/payment", (req, res) => {
               let names = [];
               for (let i = 0; i < data.length; i++) {
                 console.log(data[i]);
-                gids.push(data[i].group_id);
+                gids.push(data[i].group_id);// doing the same thing we did for the friends, extract the ids and save them in an array
               }
               gidString = `ANY('{ ` + gids.toString() + `}')`;
               get_group_name_q = get_group_name_q + gidString;
+              // get the names corresponding to these ids
               db.any(get_group_name_q)
                 // if query execution succeeds
                 // send success message
@@ -383,10 +394,10 @@ app.get("/payment", (req, res) => {
                   for (let i = 0; i < data.length; i++) {
                     const length = data[i].row.length
                     str = data[i].row.substring(1,length - 1).split(",");
-                    str = {'group_id': +str[0], 'group_name': str[1], 'amount': +str[2]};
+                    str = {'group_id': +str[0], 'group_name': str[1], 'amount': +str[2]}; //extract the information from the query and store it in an object for the handlebars to parse
                     groups.push(str);
                   }
-                  req.session.groups = groups;
+                  req.session.groups = groups; // Save the results for re-render on payment failure
                   console.log("Users group names", groups);
                   res.render("pages/payment", { isLoggedIn, friends, groups });
                 })
@@ -443,27 +454,28 @@ app.post("/register", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   let search_user_q = "SELECT * FROM users WHERE username=$1;";
+  //search for the input username
   db.any(search_user_q, [req.body.username])
     // if query execution succeeds
     // send success message
     .then(async function (data) {
+      //if the user name exists save vital information
       req.session.username = data[0].username;
       req.session.password = data[0].password;
       req.session.user_id = data[0].user_id;
       //hash the password using bcrypt library
-      const match = await bcrypt.compare(req.body.password, req.session.password);
+      const match = await bcrypt.compare(req.body.password, req.session.password); //checking password
 
       if (match) {
-        //save user details in session like in lab 7
+        //if successful, save user details in session like in lab 7
         req.session.user = {user : true};
         req.session.save();
         res.redirect("/home");
       } else {
-        res.render("pages/login", { message: "Incorrect Password" });
+        res.render("pages/login", { message: "Incorrect Password" }); // user was found but password was wrong
       }
     })
-    // if query execution fails
-    // send error message
+    //user is not found, send to registration
     .catch(function (err) {
       res.redirect("/register");
       return console.log(err);
@@ -501,12 +513,12 @@ app.post("/add_friend", (req, res) => {
     let data =  req.session.friends;
     if (req.session.user) {
       user_id = req.session.user_id;
-
+      //see if the friend exists
       db.one(find_user_q, [req.body.friend_username])
 
         .then(function (data) {
           friend_id = data.user_id;
-
+          // if they are found, save the id and add them as a friend using
           db.any(add_friend_q, [user_id, friend_id])
             // if query execution succeeds
             // send success message
@@ -561,6 +573,7 @@ app.post("/createGroup", async (req, res) => {
     "INSERT INTO groups (group_name, payment_day, payment_time, payee, amount) VALUES ($1, $2, $3, $4, $5) returning *;";
 
   try {
+    //insert the group information into the database
     const result = await db.one(insertQuery, [
       req.body.event_name,
       req.body.event_weekday,
@@ -569,12 +582,14 @@ app.post("/createGroup", async (req, res) => {
       req.body.amount
     ]);
     console.log("Inserted into db successfully : ", result);
+    // If we made the group sucessfully, snag the group id
     var group_id = result.group_id;
-
+    // Now, get the array of usernames they wanted to add the the group
     let strArray = req.body.event_attendees.split(", ");
     console.log("Assumed usernames = ", strArray);
 
     strArray.forEach(async (inputUsername) => {
+      //for each username, find the user id and then add it to the group
       var user_id = await db.one("SELECT user_id FROM users WHERE username = $1", [inputUsername]);
       var result = await db.none("INSERT INTO users_to_groups (user_id, group_id) values ($1, $2)", [user_id.user_id, group_id]);
     });
@@ -600,15 +615,17 @@ app.post("/createPayment", async (req, res) => {
     var payee_id = -1;
     console.log(req.body);
     if (req.session.user_id) {
+      //some preparing of variables
       payer_id = req.session.user_id;
-      paymentTag = req.body.recipient.split("_");
-      payee_id = +paymentTag[1];
+      paymentTag = req.body.recipient.split("_"); // this line is an artifact of how I encoded a friend payment vs a group payment. 
+                                                  //encoded as t_x where t is g or f for group and friend and x is the id of the friend/group
+      payee_id = +paymentTag[1];// Grabbing the id and payment type
       paymentType = paymentTag[0];
       groups = req.session.groups;
       friends = req.session.friends;
 
       if (paymentType == "f") {
-        // if we are paying to a friend
+        // if we are paying to a friend, we dont need to worry about linking it to a group, we can just send it straight there
         db.any(add_transaction_q, [payer_id, payee_id, req.body.amount])
           // if query execution succeeds
           // send success message
@@ -626,27 +643,28 @@ app.post("/createPayment", async (req, res) => {
             return console.log(err);
           });
       } else {
-        // if we are paying a group
+        // if we are paying a group, we first need to get the user who requested money from the group
         db.any(get_group_payee_user_q, [payee_id])
           // if query execution succeeds
           // send success message
           .then(function (data) {
             var payee_user = data[0].payee;
             current_bal = data[0].amount;
+            //once we have the user, send the payment to them
             db.any(add_transaction_q, [payer_id, payee_user, req.body.amount])
               // if query execution succeeds
               // send success message
               
               .then(function (data) {
                 console.log("insert: ",data);
-                var paid_amount = data[0].amount;
+                var paid_amount = data[0].amount; //get the paid amount from the payment for later
                   
-                db.any(add_transaction_to_group, [data[0].trans_id, payee_id])
+                db.any(add_transaction_to_group, [data[0].trans_id, payee_id]) // now we need to link the transaction to the group itself
                   // if query execution succeeds
                   // send success message
                   .then(function (data) {
                     
-                    db.any(update_group_balance, [current_bal - paid_amount, payee_id])
+                    db.any(update_group_balance, [current_bal - paid_amount, payee_id]) // and finally change the remaining balance on the group
                   // if query execution succeeds
                   // send success message
                   .then(function (data) {
