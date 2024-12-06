@@ -35,10 +35,10 @@ PayBack/
 │   │   │   └── insert.sql    
 │   │   ├── recourses/  
 │   │   │   ├── css/  
-|   |   |       └── style.css  
+│   │   │       └── style.css  
 │   │   │   └── js/  
-|   |   |       └── group.js    
-|   |   |       └── script.js    
+│   │   │       └── group.js    
+│   │   │       └── script.js    
 │   │   └── views/  
 │   │       ├── layouts/    
 │   │       └── pages/  
